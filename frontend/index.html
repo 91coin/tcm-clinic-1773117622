@@ -1,0 +1,181 @@
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>中医门诊管理系统</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .form-item { flex: 1; min-width: 200px; }
+        .form-item label { display: block; margin-bottom: 5px; color: #666; font-size: 14px; }
+        .form-item input, .form-item select, .form-item textarea { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .form-item textarea { min-height: 80px; resize: vertical; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #52c41a; color: white; }
+        .btn-warning { background: #faad14; color: white; }
+        .patient-list { max-height: 400px; overflow-y: auto; }
+        .patient-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: all 0.2s ease; }
+        .patient-item:nth-child(odd) { background: #fafafa; }
+        .patient-item:nth-child(even) { background: #f0f4ff; }
+        .patient-item:hover { background: #e6f7ff; transform: translateX(5px); box-shadow: 0 2px 8px rgba(102,126,234,0.2); }
+        .patient-item.active { background: #e6f7ff; border-left: 3px solid #667eea; }
+        .patient-item:active { transform: scale(0.98); }
+        .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 20px; }
+        .tab { padding: 12px 24px; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { border-bottom-color: #667eea; color: #667eea; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .prescription-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        .prescription-card { background: linear-gradient(135deg, #f9f9f9 0%, #f0f4ff 100%); padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.3s ease; }
+        .prescription-card:nth-child(odd) { background: linear-gradient(135deg, #f9f9f9 0%, #f0f4ff 100%); }
+        .prescription-card:nth-child(even) { background: linear-gradient(135deg, #fff5f5 0%, #fff0e6 100%); }
+        .prescription-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(102,126,234,0.3); border-color: #667eea; }
+        .prescription-card:active { transform: scale(0.98); }
+        .prescription-name { font-weight: bold; color: #667eea; margin-bottom: 8px; }
+        .fee-section { background: linear-gradient(135deg, #f6ffed 0%, #e6ffed 100%); border: 1px solid #b7eb8f; padding: 15px; border-radius: 6px; margin-top: 20px; }
+        .fee-total { font-size: 20px; font-weight: bold; color: #52c41a; }
+        .record-item { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.2s ease; }
+        .record-item:nth-child(odd) { background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%); }
+        .record-item:nth-child(even) { background: linear-gradient(135deg, #fffbf0 0%, #fff5e6 100%); }
+        .record-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header no-print"><h1>🏥 中医门诊管理系统</h1></div>
+            <div class="tabs no-print">
+                <div class="tab" :class="{active: currentTab === 'patients'}" @click="currentTab = 'patients'">患者管理</div>
+                <div class="tab" :class="{active: currentTab === 'visit'}" @click="currentTab = 'visit'">问诊开方</div>
+                <div class="tab" :class="{active: currentTab === 'records'}" @click="currentTab = 'records'">病历记录</div>
+            </div>
+            <div class="tab-content" :class="{active: currentTab === 'patients'}">
+                <div class="card no-print">
+                    <div class="card-title">新增患者</div>
+                    <div class="form-row">
+                        <div class="form-item"><label>姓名 *</label><input v-model="newPatient.name" placeholder="患者姓名"></div>
+                        <div class="form-item"><label>性别</label><select v-model="newPatient.gender"><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select></div>
+                        <div class="form-item"><label>年龄</label><input v-model="newPatient.age" type="number" placeholder="年龄"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item"><label>电话</label><input v-model="newPatient.phone" placeholder="联系电话"></div>
+                        <div class="form-item"><label>地址</label><input v-model="newPatient.address" placeholder="地址"></div>
+                    </div>
+                    <div class="form-row"><div class="form-item" style="flex: 2;"><label>病史</label><textarea v-model="newPatient.history" placeholder="既往病史、过敏史"></textarea></div></div>
+                    <button class="btn btn-primary" @click="addPatient">保存患者</button>
+                </div>
+                <div class="card no-print">
+                    <div class="card-title">患者列表</div>
+                    <div class="form-row"><div class="form-item"><input v-model="searchQuery" placeholder="搜索患者" @input="searchPatients"></div></div>
+                    <div class="patient-list">
+                        <div v-for="p in patients" :key="p.id" class="patient-item" :class="{active: selectedPatient && selectedPatient.id === p.id}" @click="selectPatient(p)">
+                            <div style="font-weight: bold;">{{ p.name }} <span style="color: #999;">{{ p.gender }} {{ p.age }}岁</span></div>
+                            <div style="font-size: 12px; color: #999;">电话: {{ p.phone || '无' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" :class="{active: currentTab === 'visit'}">
+                <div v-if="!selectedPatient" class="card no-print" style="text-align: center; padding: 60px; color: #999;">请先选择患者</div>
+                <template v-if="selectedPatient">
+                    <div class="card no-print">
+                        <div class="card-title">患者信息</div>
+                        <div class="form-row">
+                            <div class="form-item"><label>姓名</label><input :value="selectedPatient.name" disabled></div>
+                            <div class="form-item"><label>性别</label><input :value="selectedPatient.gender" disabled></div>
+                            <div class="form-item"><label>年龄</label><input :value="selectedPatient.age" disabled></div>
+                        </div>
+                    </div>
+                    <div class="card no-print">
+                        <div class="card-title">四诊信息</div>
+                        <div class="form-row"><div class="form-item" style="flex: 2;"><label>主诉 *</label><input v-model="visitForm.chief_complaint" placeholder="主要症状"></div></div>
+                        <div class="form-row">
+                            <div class="form-item"><label>望诊</label><textarea v-model="visitForm.inspection" placeholder="神色、舌象"></textarea></div>
+                            <div class="form-item"><label>闻诊</label><textarea v-model="visitForm.auscultation" placeholder="声音、气味"></textarea></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item"><label>问诊</label><textarea v-model="visitForm.inquiry" placeholder="症状、病史"></textarea></div>
+                            <div class="form-item"><label>切诊</label><textarea v-model="visitForm.palpation" placeholder="脉象"></textarea></div>
+                        </div>
+                    </div>
+                    <div class="card no-print">
+                        <div class="card-title">辨证论治</div>
+                        <div class="form-row"><div class="form-item" style="flex: 2;"><label>辨证 *</label><input v-model="visitForm.syndrome" placeholder="如：风寒表证"></div></div>
+                        <div class="form-row"><div class="form-item" style="flex: 2;"><label>治法</label><input v-model="visitForm.treatment" placeholder="如：辛温解表"></div></div>
+                    </div>
+                    <div class="card no-print">
+                        <div class="card-title">处方用药</div>
+                        <div class="form-row"><div class="form-item" style="flex: 2;"><label>处方 *</label><textarea v-model="visitForm.prescription" rows="4" placeholder="药物及剂量"></textarea></div></div>
+                        <div class="card-title" style="margin-top: 20px;">经典方剂（点击填充）</div>
+                        <div class="prescription-list">
+                            <div v-for="p in classicPrescriptions" :key="p.name" class="prescription-card" @click="fillPrescription(p)">
+                                <div class="prescription-name">{{ p.name }}</div>
+                                <div>{{ p.function }}</div>
+                                <div style="font-size: 12px; color: #999;">{{ p.composition }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card no-print">
+                        <div class="card-title">费用</div>
+                        <div class="form-row">
+                            <div class="form-item"><label>诊费（元）</label><input v-model.number="visitForm.consultation_fee" type="number"></div>
+                            <div class="form-item"><label>药费（元）</label><input v-model.number="visitForm.medicine_fee" type="number"></div>
+                        </div>
+                        <div class="fee-section">
+                            <div class="form-row"><span>诊费：</span><span>¥{{ visitForm.consultation_fee || 0 }}</span></div>
+                            <div class="form-row"><span>药费：</span><span>¥{{ visitForm.medicine_fee || 0 }}</span></div>
+                            <div class="form-row"><span>合计：</span><span class="fee-total">¥{{ (visitForm.consultation_fee || 0) + (visitForm.medicine_fee || 0) }}</span></div>
+                        </div>
+                    </div>
+                    <div class="card no-print" style="text-align: center;">
+                        <button class="btn btn-success" @click="saveRecord">保存病历</button>
+                        <button class="btn btn-warning" @click="printPrescription" style="margin-left: 10px;">打印处方</button>
+                    </div>
+                </template>
+            </div>
+            <div class="tab-content" :class="{active: currentTab === 'records'}">
+                <div class="card no-print">
+                    <div class="card-title">历史病历</div>
+                    <div v-for="r in records" :key="r.id" class="card" style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><strong>{{ r.patient_name }}</strong><span style="color: #999;">{{ r.visit_date }}</span></div>
+                        <div><strong>主诉：</strong>{{ r.chief_complaint }}</div>
+                        <div><strong>辨证：</strong>{{ r.syndrome }}</div>
+                        <div><strong>处方：</strong>{{ r.prescription }}</div>
+                        <div><strong>费用：</strong>¥{{ r.total_fee }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    currentTab: 'patients',
+                    patients: [],
+                    selectedPatient: null,
+                    searchQuery: '',
+                    records: [],
+                    classicPrescriptions: [],
+                    newPatient: { name: '', gender: '', age: '', phone: '', address: '', history: '' },
+                    visitForm: { chief_complaint: '', inspection: '', auscultation: '', inquiry: '', palpation: '', syndrome: '',
+...(truncated)...
+小满
+16:53
+⚙
+{
