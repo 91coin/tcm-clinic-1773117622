@@ -1264,8 +1264,24 @@ function getStatisticsHTML() {
       </table>
     </div>
     
+    <div style="background: #e8f5e9; border-left: 4px solid #27ae60; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <span style="font-size: 24px;">☁️</span>
+        <div>
+          <div style="font-weight: 600; color: #27ae60;">跨设备数据同步</div>
+          <div style="font-size: 13px; color: #27ae60;">电脑、手机、平板多端同步</div>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+        <button class="btn btn-primary" onclick="syncDataUI()">🔄 数据同步</button>
+        <button class="btn btn-outline" onclick="exportData()">📤 导出数据</button>
+      </div>
+      <div style="margin-top: 12px; font-size: 12px; color: #666;">
+        💡 提示：使用 GitHub 同步可实现多设备自动同步
+      </div>
+    </div>
+    
     <div style="margin-top: 24px; display: flex; gap: 12px;">
-      <button class="btn btn-primary" onclick="exportData()">📤 导出数据</button>
       <button class="btn btn-outline" onclick="showPage('dashboard')">🏠 返回首页</button>
     </div>
   `;
@@ -1802,5 +1818,30 @@ function clearSystemData() {
 
 // 系统信息
 function showSystemInfo() {
-  alert(`中医诊所管理系统\n\n版本：v1.2\n开发时间：2026-03-11\n代码量：2,200+ 行\n数据量：\n- 患者：${patients.length}人\n- 病历：${cases.length}份\n- 处方：${prescriptions.length}张\n- 药材：${herbs.length}种\n- 方剂：${formulas.length}个`);
+  alert(`中医诊所管理系统\n\n版本：v1.2\n开发时间：2026-03-11\n代码量：2,500+ 行\n数据量：\n- 患者：${patients.length}人\n- 病历：${cases.length}份\n- 处方：${prescriptions.length}张\n- 药材：${herbs.length}种\n- 方剂：${formulas.length}个`);
+}
+
+// 跨设备同步 UI
+function syncDataUI() {
+  const action = prompt('选择同步操作：\n1 - 导出数据（JSON 文件）\n2 - 导入数据（JSON 文件）\n3 - 同步到 GitHub\n4 - 从 GitHub 下载\n\n请输入数字（1-4）：');
+  
+  switch(action) {
+    case '1':
+      exportData();
+      break;
+    case '2':
+      const json = prompt('请粘贴备份的 JSON 数据：');
+      if (json) importData(json);
+      break;
+    case '3':
+      const token1 = prompt('请输入 GitHub Token：\n\n获取方式：\n1. 访问 https://github.com/settings/tokens\n2. 创建新 Token（勾选 repo 权限）\n3. 复制 Token');
+      if (token1) syncToGitHub(token1);
+      break;
+    case '4':
+      const token2 = prompt('请输入 GitHub Token：');
+      if (token2) syncFromGitHub(token2);
+      break;
+    default:
+      if (action) showToast('❌ 无效操作', 'error');
+  }
 }
