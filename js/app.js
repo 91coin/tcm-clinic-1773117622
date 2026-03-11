@@ -55,7 +55,8 @@ function showPage(page) {
     prescription: '处方管理',
     payment: '收费结算',
     inventory: '药房库存',
-    statistics: '统计报表'
+    statistics: '统计报表',
+    settings: '系统管理'
   };
   
   document.getElementById('page-title').textContent = titles[page] || '首页';
@@ -78,8 +79,101 @@ function getPageContent(page) {
     case 'payment': return getPaymentHTML();
     case 'inventory': return getInventoryHTML();
     case 'statistics': return getStatisticsHTML();
+    case 'settings': return getSettingsHTML();
     default: return getDashboardHTML();
   }
+}
+
+// 系统管理页面
+function getSettingsHTML() {
+  return `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-value">${patients.length}</div>
+            <div class="stat-label">患者档案</div>
+          </div>
+          <div class="stat-icon blue">👥</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-value">${cases.length}</div>
+            <div class="stat-label">病历记录</div>
+          </div>
+          <div class="stat-icon green">📋</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-value">${herbs.length}</div>
+            <div class="stat-label">药品种类</div>
+          </div>
+          <div class="stat-icon orange">🌿</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-value">${formatMoney(payments.reduce((sum, p) => sum + p.total_amount, 0))}</div>
+            <div class="stat-label">总营收</div>
+          </div>
+          <div class="stat-icon cyan">💰</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="table-container">
+      <div class="table-header">
+        <div class="table-title">⚙️ 系统管理</div>
+      </div>
+      <div style="padding: 32px;">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px;">
+          <button class="btn btn-primary" style="padding: 24px; justify-content: flex-start;" onclick="exportSystemData()">
+            <div style="font-size: 32px; margin-right: 16px;">📤</div>
+            <div>
+              <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">导出数据</div>
+              <div style="font-size: 13px; color: rgba(255,255,255,0.8);">备份所有数据到本地</div>
+            </div>
+          </button>
+          
+          <button class="btn btn-outline" style="padding: 24px; justify-content: flex-start;" onclick="showSystemInfo()">
+            <div style="font-size: 32px; margin-right: 16px;">ℹ️</div>
+            <div>
+              <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">系统信息</div>
+              <div style="font-size: 13px; color: #666;">查看系统详细信息</div>
+            </div>
+          </button>
+        </div>
+        
+        <div style="background: #fff3cd; border-left: 4px solid #f39c12; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span style="font-size: 24px;">⚠️</span>
+            <div style="font-weight: 600; color: #856404;">危险操作</div>
+          </div>
+          <div style="font-size: 14px; color: #856404; margin-bottom: 16px;">
+            以下操作将影响系统数据，请谨慎操作！
+          </div>
+          <button class="btn btn-outline" style="border-color: #e74c3c; color: #e74c3c;" onclick="clearSystemData()">
+            🗑️ 清空所有数据
+          </button>
+        </div>
+        
+        <div style="padding: 20px; background: #f8f9fa; border-radius: 12px;">
+          <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">📋 系统信息</div>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 13px;">
+            <div><strong>版本：</strong>v1.2</div>
+            <div><strong>开发时间：</strong>2026-03-11</div>
+            <div><strong>代码量：</strong>2,200+ 行</div>
+            <div><strong>数据量：</strong>${patients.length + cases.length + prescriptions.length + payments.length} 条</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // 首页
@@ -1027,8 +1121,27 @@ function saveInventory() {
 // 统计报表
 function getStatisticsHTML() {
   const today = new Date().toLocaleDateString('zh-CN');
-  const todayRevenue = payments.filter(p => p.date === today).reduce((sum, p) => sum + p.total_amount, 0);
+  const todayPayments = payments.filter(p => p.date === today);
+  const todayRevenue = todayPayments.reduce((sum, p) => sum + p.total_amount, 0);
   const todayPatients = registrations.filter(r => r.date === today).length;
+  const todayPrescriptions = prescriptions.filter(p => p.date === today).length;
+  
+  // 本月统计
+  const thisMonth = new Date().getMonth() + 1;
+  const monthPayments = payments.filter(p => {
+    const d = new Date(p.date);
+    return d.getMonth() + 1 === thisMonth;
+  });
+  const monthRevenue = monthPayments.reduce((sum, p) => sum + p.total_amount, 0);
+  
+  // 医生工作量统计
+  const doctorStats = {};
+  cases.forEach(c => {
+    if (!doctorStats[c.doctor_name]) {
+      doctorStats[c.doctor_name] = 0;
+    }
+    doctorStats[c.doctor_name]++;
+  });
   
   return `
     <div class="stats-grid">
@@ -1044,16 +1157,25 @@ function getStatisticsHTML() {
       <div class="stat-card">
         <div class="stat-header">
           <div>
-            <div class="stat-value">${todayPatients}</div>
-            <div class="stat-label">今日门诊量</div>
+            <div class="stat-value">${formatMoney(monthRevenue)}</div>
+            <div class="stat-label">本月营收</div>
           </div>
-          <div class="stat-icon blue">👥</div>
+          <div class="stat-icon blue">📅</div>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-header">
           <div>
-            <div class="stat-value">${prescriptions.filter(p => p.date === today).length}</div>
+            <div class="stat-value">${todayPatients}</div>
+            <div class="stat-label">今日门诊量</div>
+          </div>
+          <div class="stat-icon cyan">👥</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-value">${todayPrescriptions}</div>
             <div class="stat-label">今日处方量</div>
           </div>
           <div class="stat-icon orange">💊</div>
@@ -1061,14 +1183,90 @@ function getStatisticsHTML() {
       </div>
     </div>
     
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px;">
+      <div class="table-container">
+        <div class="table-header">
+          <div class="table-title">📈 营收统计</div>
+        </div>
+        <div style="padding: 24px;">
+          <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+            <span>今日营收</span>
+            <span style="font-weight: 600; color: #2c5f2d;">${formatMoney(todayRevenue)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+            <span>本月营收</span>
+            <span style="font-weight: 600; color: #2c5f2d;">${formatMoney(monthRevenue)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 12px 0;">
+            <span>总营收</span>
+            <span style="font-weight: 600; color: #2c5f2d;">${formatMoney(payments.reduce((sum, p) => sum + p.total_amount, 0))}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="table-container">
+        <div class="table-header">
+          <div class="table-title">👨‍⚕️ 医生工作量</div>
+        </div>
+        <div style="padding: 24px;">
+          ${Object.entries(doctorStats).map(([doctor, count]) => `
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+              <span>${doctor}</span>
+              <span style="font-weight: 600;">${count} 例</span>
+            </div>
+          `).join('')}
+          ${Object.keys(doctorStats).length === 0 ? '<div style="text-align: center; color: #999; padding: 20px;">暂无数据</div>' : ''}
+        </div>
+      </div>
+    </div>
+    
     <div class="table-container">
       <div class="table-header">
-        <div class="table-title">📊 经营数据</div>
+        <div class="table-title">📊 数据概览</div>
       </div>
-      <div style="padding: 60px; text-align: center;">
-        <div style="font-size: 72px; margin-bottom: 20px;">📈</div>
-        <div style="font-size: 18px; color: #666;">统计功能开发中</div>
-      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>统计项</th>
+            <th>数量</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>总患者数</td>
+            <td style="font-weight: 600;">${patients.length}人</td>
+          </tr>
+          <tr>
+            <td>总挂号数</td>
+            <td style="font-weight: 600;">${registrations.length}例</td>
+          </tr>
+          <tr>
+            <td>总病历数</td>
+            <td style="font-weight: 600;">${cases.length}份</td>
+          </tr>
+          <tr>
+            <td>总处方数</td>
+            <td style="font-weight: 600;">${prescriptions.length}张</td>
+          </tr>
+          <tr>
+            <td>总收费记录</td>
+            <td style="font-weight: 600;">${payments.length}笔</td>
+          </tr>
+          <tr>
+            <td>药品种类</td>
+            <td style="font-weight: 600;">${herbs.length}种</td>
+          </tr>
+          <tr>
+            <td>经典方剂</td>
+            <td style="font-weight: 600;">${formulas.length}个</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div style="margin-top: 24px; display: flex; gap: 12px;">
+      <button class="btn btn-primary" onclick="exportData()">📤 导出数据</button>
+      <button class="btn btn-outline" onclick="showPage('dashboard')">🏠 返回首页</button>
     </div>
   `;
 }
@@ -1542,3 +1740,67 @@ function closeModal(modalId) {
 
 // 初始化应用
 document.addEventListener('DOMContentLoaded', initApp);
+
+// ==================== 系统管理功能 ====================
+
+// 导出数据
+function exportSystemData() {
+  const data = {
+    patients,
+    registrations,
+    cases,
+    prescriptions,
+    herbs,
+    formulas,
+    payments,
+    users,
+    export_date: new Date().toISOString()
+  };
+  
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `中医诊所数据备份_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('数据导出成功', 'success');
+}
+
+// 导入数据
+function importSystemData(jsonString) {
+  try {
+    const data = JSON.parse(jsonString);
+    
+    if (data.patients) patients = data.patients;
+    if (data.registrations) registrations = data.registrations;
+    if (data.cases) cases = data.cases;
+    if (data.prescriptions) prescriptions = data.prescriptions;
+    if (data.herbs) herbs = data.herbs;
+    if (data.formulas) formulas = data.formulas;
+    if (data.payments) payments = data.payments;
+    if (data.users) users = data.users;
+    
+    saveToStorage();
+    showToast('数据导入成功，请刷新页面', 'success');
+    setTimeout(() => location.reload(), 1500);
+  } catch (error) {
+    showToast('数据导入失败：' + error.message, 'error');
+  }
+}
+
+// 清空数据
+function clearSystemData() {
+  if (confirm('⚠️ 确定要清空所有数据吗？此操作不可恢复！')) {
+    if (confirm('⚠️ 再次确认：所有患者档案、病历、处方、收费记录都将被删除！')) {
+      localStorage.removeItem('tcm-clinic-data');
+      showToast('数据已清空，正在刷新页面...', 'info');
+      setTimeout(() => location.reload(), 1500);
+    }
+  }
+}
+
+// 系统信息
+function showSystemInfo() {
+  alert(`中医诊所管理系统\n\n版本：v1.2\n开发时间：2026-03-11\n代码量：2,200+ 行\n数据量：\n- 患者：${patients.length}人\n- 病历：${cases.length}份\n- 处方：${prescriptions.length}张\n- 药材：${herbs.length}种\n- 方剂：${formulas.length}个`);
+}
