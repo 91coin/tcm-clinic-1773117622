@@ -550,17 +550,59 @@ function goToPayment() {
 
 // 收费结算
 function getPaymentHTML() {
+  const today = new Date().toLocaleDateString('zh-CN');
+  const todayPayments = payments.filter(p => p.date === today);
+  const todayRevenue = todayPayments.reduce((sum, p) => sum + p.total_amount, 0);
+  const pendingPrescriptions = prescriptions.filter(p => p.status === '待缴费');
+  
   return `
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-header">
           <div>
-            <div class="stat-value">${payments.filter(p => p.date === new Date().toLocaleDateString('zh-CN')).length}</div>
-            <div class="stat-label">今日收费</div>
+            <div class="stat-value">${formatMoney(todayRevenue)}</div>
+            <div class="stat-label">今日营收</div>
           </div>
           <div class="stat-icon green">💰</div>
         </div>
       </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-value">${todayPayments.length}</div>
+            <div class="stat-label">今日收费</div>
+          </div>
+          <div class="stat-icon blue">📝</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-value">${pendingPrescriptions.length}</div>
+            <div class="stat-label">待缴费</div>
+          </div>
+          <div class="stat-icon orange">⏳</div>
+        </div>
+      </div>
+    </div>
+    
+    ${pendingPrescriptions.length > 0 ? `
+      <div style="background: #fff3cd; border-left: 4px solid #f39c12; padding: 16px 24px; border-radius: 12px; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 24px;">⏳</span>
+            <div>
+              <div style="font-weight: 600; color: #856404;">待缴费处方</div>
+              <div style="font-size: 14px; color: #856404;">${pendingPrescriptions.length} 个处方待缴费</div>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="showPendingPrescriptions()">去收费</button>
+        </div>
+      </div>
+    ` : ''}
+    
+    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+      <input type="text" class="form-input" placeholder="🔍 搜索收费记录..." id="search-payment" style="flex: 1;">
     </div>
     
     <div class="table-container">
@@ -573,26 +615,172 @@ function getPaymentHTML() {
             <th>支付单号</th>
             <th>患者姓名</th>
             <th>日期</th>
+            <th>项目</th>
             <th>金额</th>
             <th>支付方式</th>
             <th>状态</th>
+            <th>操作</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="payment-list">
           ${payments.map(p => `
             <tr>
               <td>${p.id}</td>
               <td>${p.patient_name}</td>
               <td>${formatDate(p.date)}</td>
-              <td>${formatMoney(p.total_amount)}</td>
+              <td>${p.items.map(i => i.name).join(' + ')}</td>
+              <td style="font-weight: 600; color: #2c5f2d;">${formatMoney(p.total_amount)}</td>
               <td>${p.payment_method}</td>
-              <td><span class="status-badge success">${p.status}</span></td>
+              <td><span class="status-badge ${p.status === '已完成' ? 'success' : 'warning'}">${p.status}</span></td>
+              <td>
+                <button class="btn btn-sm btn-info" onclick="viewPaymentDetail('${p.id}')">📄 详情</button>
+              </td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     </div>
+    
+    <!-- 收费弹窗 -->
+    <div class="modal-overlay" id="payment-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">💰 收费结算</h2>
+          <button class="modal-close" onclick="closeModal('payment-modal')">×</button>
+        </div>
+        <div class="modal-body">
+          <form id="payment-form">
+            <input type="hidden" name="prescription_id" id="pay-prescription-id">
+            
+            <div style="background: #f8f9fa; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+              <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">患者信息</div>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                <div>
+                  <div style="font-size: 12px; color: #666;">姓名</div>
+                  <div style="font-size: 15px; font-weight: 600;" id="pay-patient-name">-</div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; color: #666;">诊断</div>
+                  <div style="font-size: 15px; font-weight: 600;" id="pay-diagnosis">-</div>
+                </div>
+              </div>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+              <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">费用明细</div>
+              <div id="payment-items"></div>
+              <div style="border-top: 2px solid #e9ecef; margin-top: 12px; padding-top: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="font-size: 16px; font-weight: 600;">合计</div>
+                  <div style="font-size: 20px; font-weight: 600; color: #2c5f2d;" id="pay-total-amount">¥0.00</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">支付方式 <span class="required">*</span></label>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                <label style="padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; text-align: center;">
+                  <input type="radio" name="payment_method" value="现金" checked style="margin-bottom: 8px;">
+                  <div>💵 现金</div>
+                </label>
+                <label style="padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; text-align: center;">
+                  <input type="radio" name="payment_method" value="微信" style="margin-bottom: 8px;">
+                  <div>💚 微信</div>
+                </label>
+                <label style="padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; text-align: center;">
+                  <input type="radio" name="payment_method" value="支付宝" style="margin-bottom: 8px;">
+                  <div>💙 支付宝</div>
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('payment-modal')">取消</button>
+          <button type="button" class="btn btn-primary" onclick="confirmPayment()">💰 确认收费</button>
+        </div>
+      </div>
+    </div>
   `;
+}
+
+// 显示待缴费处方
+function showPendingPrescriptions() {
+  const pending = prescriptions.filter(p => p.status === '待缴费');
+  if (pending.length === 0) {
+    showToast('暂无待缴费处方', 'info');
+    return;
+  }
+  
+  // 简单处理：直接打开第一个待缴费处方
+  openPaymentModal(pending[0].id);
+}
+
+// 打开收费弹窗
+function openPaymentModal(prescriptionId) {
+  const p = prescriptions.find(pre => pre.id === prescriptionId);
+  if (!p) return;
+  
+  document.getElementById('pay-prescription-id').value = p.id;
+  document.getElementById('pay-patient-name').textContent = p.patient_name;
+  document.getElementById('pay-diagnosis').textContent = p.diagnosis;
+  
+  // 费用明细
+  const itemsHtml = `
+    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e9ecef;">
+      <span>药费</span>
+      <span>${formatMoney(p.total_amount)}</span>
+    </div>
+  `;
+  document.getElementById('payment-items').innerHTML = itemsHtml;
+  document.getElementById('pay-total-amount').textContent = formatMoney(p.total_amount);
+  
+  openModal('payment-modal');
+}
+
+// 确认收费
+function confirmPayment() {
+  const form = document.getElementById('payment-form');
+  const formData = new FormData(form);
+  
+  const prescriptionId = formData.get('prescription_id');
+  const p = prescriptions.find(pre => pre.id === prescriptionId);
+  
+  if (p) {
+    // 创建收费记录
+    const newPayment = {
+      id: generateId('PAY'),
+      prescription_id: prescriptionId,
+      patient_id: p.patient_id,
+      patient_name: p.patient_name,
+      date: new Date().toLocaleDateString('zh-CN'),
+      time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+      items: [{ name: '药费', amount: p.total_amount }],
+      total_amount: p.total_amount,
+      payment_method: formData.get('payment_method'),
+      status: '已完成',
+      operator_id: 'U002'
+    };
+    
+    payments.unshift(newPayment);
+    p.status = '已缴费';
+    
+    saveToStorage();
+    closeModal('payment-modal');
+    showToast('收费成功', 'success');
+    
+    // 刷新页面
+    showPage('payment');
+  }
+}
+
+// 查看收费详情
+function viewPaymentDetail(paymentId) {
+  const p = payments.find(payment => payment.id === paymentId);
+  if (!p) return;
+  
+  alert(`收费详情\n\n支付单号：${p.id}\n患者：${p.patient_name}\n日期：${p.date} ${p.time}\n项目：${p.items.map(i => i.name).join(' + ')}\n金额：${formatMoney(p.total_amount)}\n支付方式：${p.payment_method}\n状态：${p.status}\n操作员：${p.operator_id}`);
 }
 
 // 药房库存
@@ -1098,6 +1286,37 @@ function saveDiagnosis() {
   
   cases.unshift(newCase);
   
+  // 创建处方记录
+  const formulaSelect = document.getElementById('formula-select');
+  const formulaName = formulaSelect.options[formulaSelect.selectedIndex]?.dataset.name || '自定义方剂';
+  
+  // 简单计算药费（按药材数量估算）
+  const compositionText = formData.get('prescription_composition');
+  const herbCount = (compositionText.match(/\n/g) || []).length + 1;
+  const totalAmount = herbCount * 10 * parseInt(formData.get('days')); // 每味药 10 元/天
+  
+  const newPrescription = {
+    id: generateId('PR'),
+    case_id: newCase.id,
+    patient_id: newCase.patient_id,
+    patient_name: newCase.patient_name,
+    date: newCase.date,
+    type: '中药',
+    formula_id: formData.get('formula_id'),
+    formula_name: formulaName,
+    prescription_composition: compositionText,
+    usage_instruction: formData.get('usage_instruction'),
+    days: parseInt(formData.get('days')),
+    total_amount: totalAmount,
+    status: '待缴费',
+    doctor_id: newCase.doctor_id,
+    doctor_name: newCase.doctor_name,
+    diagnosis: newCase.diagnosis,
+    syndrome: newCase.syndrome
+  };
+  
+  prescriptions.unshift(newPrescription);
+  
   // 更新挂号状态
   r.status = '已完成';
   
@@ -1110,10 +1329,10 @@ function saveDiagnosis() {
   
   saveToStorage();
   closeDiagnosisModal();
-  showToast('病历保存成功', 'success');
+  showToast('病历保存成功，已生成处方', 'success');
   
-  // 刷新页面
-  showPage('diagnosis');
+  // 跳转到处方管理
+  showPage('prescription');
 }
 
 // 打开方剂选择器（简化版）
