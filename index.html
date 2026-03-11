@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中医诊所管理系统</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 侧边栏导航 -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon">🏥</span>
+        <span class="logo-text">中医诊所管理系统</span>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span>
+        <span>首页</span>
+      </div>
+      <div class="nav-item" data-page="patients">
+        <span class="nav-icon">👥</span>
+        <span>患者管理</span>
+      </div>
+      <div class="nav-item" data-page="registration">
+        <span class="nav-icon">📝</span>
+        <span>预约接诊</span>
+      </div>
+      <div class="nav-item" data-page="diagnosis">
+        <span class="nav-icon">🩺</span>
+        <span>中医诊疗</span>
+      </div>
+      <div class="nav-item" data-page="prescription">
+        <span class="nav-icon">💊</span>
+        <span>处方管理</span>
+      </div>
+      <div class="nav-item" data-page="payment">
+        <span class="nav-icon">💰</span>
+        <span>收费结算</span>
+      </div>
+      <div class="nav-item" data-page="inventory">
+        <span class="nav-icon">📦</span>
+        <span>药房库存</span>
+      </div>
+      <div class="nav-item" data-page="statistics">
+        <span class="nav-icon">📈</span>
+        <span>统计报表</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar">医</div>
+        <div class="user-details">
+          <div class="user-name">管理员</div>
+          <div class="user-role">诊所管理员</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <header class="top-bar">
+      <h1 class="page-title" id="page-title">首页</h1>
+      <div class="top-bar-actions">
+        <span class="date" id="current-date"></span>
+      </div>
+    </header>
+
+    <div class="content" id="content">
+      <!-- 动态加载页面内容 -->
+    </div>
+  </main>
+
+  <!-- 全局通知 -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
