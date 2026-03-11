@@ -763,9 +763,221 @@ function startDiagnosis(registrationId) {
   if (r) {
     r.status = '就诊中';
     saveToStorage();
-    showPage('diagnosis');
-    showToast(`开始接诊：${r.patient_name}`, 'info');
+    openDiagnosisModal(r);
   }
+}
+
+// 打开诊疗弹窗
+function openDiagnosisModal(registration) {
+  const modalHtml = `
+    <div class="modal-overlay" id="diagnosis-modal" style="display: flex;">
+      <div class="modal" style="max-width: 1000px;">
+        <div class="modal-header">
+          <h2 class="modal-title">🩺 诊疗开方 - ${registration.patient_name}</h2>
+          <button class="modal-close" onclick="closeDiagnosisModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <form id="diagnosis-form">
+            <input type="hidden" name="registration_id" value="${registration.id}">
+            <input type="hidden" name="patient_id" value="${registration.patient_id}">
+            <input type="hidden" name="patient_name" value="${registration.patient_name}">
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">📋 主诉</label>
+                <input type="text" name="chief_complaint" class="form-input" value="${registration.chief_complaint || ''}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">📅 日期</label>
+                <input type="date" name="date" class="form-input" value="${new Date().toISOString().split('T')[0]}" readonly>
+              </div>
+            </div>
+            
+            <div class="form-group full">
+              <label class="form-label">📖 现病史</label>
+              <textarea name="present_illness" class="form-textarea" rows="3" placeholder="详细描述病情发展过程..."></textarea>
+            </div>
+            
+            <div class="form-group full">
+              <label class="form-label">📚 既往史</label>
+              <textarea name="past_history" class="form-textarea" rows="2" placeholder="既往病史、过敏史..."></textarea>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+              <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #2c5f2d;">🔍 望闻问切</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">望诊</label>
+                  <input type="text" name="inspection" class="form-input" placeholder="舌象、面色等">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">闻诊</label>
+                  <input type="text" name="smelling_hearing" class="form-input" placeholder="声音、气味等">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">问诊</label>
+                  <textarea name="questioning" class="form-textarea" rows="2" placeholder="症状询问..."></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">切诊</label>
+                  <input type="text" name="pulsing" class="form-input" placeholder="脉象">
+                </div>
+              </div>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+              <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #2c5f2d;">🎯 辨证论治</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">中医诊断</label>
+                  <input type="text" name="diagnosis" class="form-input" placeholder="如：感冒、咳嗽">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">证型</label>
+                  <select name="syndrome" class="form-select">
+                    <option value="">请选择证型</option>
+                    <option value="风寒感冒">风寒感冒</option>
+                    <option value="风热感冒">风热感冒</option>
+                    <option value="肝阳上亢">肝阳上亢</option>
+                    <option value="脾胃虚弱">脾胃虚弱</option>
+                    <option value="肾阴不足">肾阴不足</option>
+                    <option value="气血两虚">气血两虚</option>
+                    <option value="肝气郁结">肝气郁结</option>
+                    <option value="痰湿内阻">痰湿内阻</option>
+                    <option value="瘀血阻滞">瘀血阻滞</option>
+                    <option value="心脾两虚">心脾两虚</option>
+                  </select>
+                </div>
+                <div class="form-group full">
+                  <label class="form-label">治法</label>
+                  <textarea name="treatment_plan" class="form-textarea" rows="2" placeholder="治疗方法..."></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+              <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #2c5f2d; display: flex; justify-content: space-between; align-items: center;">
+                <span>💊 处方</span>
+                <button type="button" class="btn btn-sm btn-outline" onclick="openFormulaSelector()">📚 选择方剂</button>
+              </div>
+              <div class="form-group">
+                <label class="form-label">选择方剂</label>
+                <select name="formula_id" id="formula-select" class="form-select" onchange="loadFormulaComposition()">
+                  <option value="">选择方剂</option>
+                  ${formulas.map(f => `<option value="${f.id}" data-name="${f.name}">${f.name} - ${f.effects}</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">处方组成</label>
+                <textarea name="prescription_composition" id="prescription-composition" class="form-textarea" rows="4" placeholder="方剂组成或自定义处方..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">用法说明</label>
+                <input type="text" name="usage_instruction" class="form-input" value="水煎服，日一剂，分两次温服">
+              </div>
+              <div class="form-group">
+                <label class="form-label">用药天数</label>
+                <input type="number" name="days" class="form-input" value="7" min="1" max="30">
+              </div>
+            </div>
+            
+            <div class="form-group full">
+              <label class="form-label">📝 医嘱</label>
+              <textarea name="advice" class="form-textarea" rows="2" placeholder="饮食禁忌、生活调理建议..."></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeDiagnosisModal()">取消</button>
+          <button type="button" class="btn btn-primary" onclick="saveDiagnosis()">💾 保存病历并开方</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+// 关闭诊疗弹窗
+function closeDiagnosisModal() {
+  const modal = document.getElementById('diagnosis-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// 加载方剂组成
+function loadFormulaComposition() {
+  const select = document.getElementById('formula-select');
+  const option = select.options[select.selectedIndex];
+  const textarea = document.getElementById('prescription-composition');
+  
+  if (option.value) {
+    const formula = formulas.find(f => f.id === option.value);
+    if (formula) {
+      const composition = formula.composition.map(c => `${c.name} ${c.dosage}`).join('\n');
+      textarea.value = composition + '\n\n用法：' + (formula.usage || '水煎服');
+    }
+  }
+}
+
+// 保存病历
+function saveDiagnosis() {
+  const form = document.getElementById('diagnosis-form');
+  const formData = new FormData(form);
+  
+  const registrationId = formData.get('registration_id');
+  const r = registrations.find(reg => reg.id === registrationId);
+  
+  const newCase = {
+    id: generateId('C'),
+    registration_id: registrationId,
+    patient_id: formData.get('patient_id'),
+    patient_name: formData.get('patient_name'),
+    date: formData.get('date'),
+    chief_complaint: formData.get('chief_complaint'),
+    present_illness: formData.get('present_illness'),
+    past_history: formData.get('past_history'),
+    inspection: formData.get('inspection'),
+    smelling_hearing: formData.get('smelling_hearing'),
+    questioning: formData.get('questioning'),
+    pulsing: formData.get('pulsing'),
+    diagnosis: formData.get('diagnosis'),
+    syndrome: formData.get('syndrome'),
+    treatment_plan: formData.get('treatment_plan'),
+    formula_id: formData.get('formula_id'),
+    prescription_composition: formData.get('prescription_composition'),
+    usage_instruction: formData.get('usage_instruction'),
+    days: parseInt(formData.get('days')),
+    advice: formData.get('advice'),
+    doctor_id: r.doctor_id,
+    doctor_name: r.doctor_name
+  };
+  
+  cases.unshift(newCase);
+  
+  // 更新挂号状态
+  r.status = '已完成';
+  
+  // 更新患者就诊次数
+  const patient = patients.find(p => p.id === newCase.patient_id);
+  if (patient) {
+    patient.visit_count++;
+    patient.last_visit_date = new Date().toLocaleDateString('zh-CN');
+  }
+  
+  saveToStorage();
+  closeDiagnosisModal();
+  showToast('病历保存成功', 'success');
+  
+  // 刷新页面
+  showPage('diagnosis');
+}
+
+// 打开方剂选择器（简化版）
+function openFormulaSelector() {
+  const select = document.getElementById('formula-select');
+  select.focus();
 }
 
 // 查看患者
