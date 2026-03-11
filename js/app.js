@@ -1823,7 +1823,28 @@ function showSystemInfo() {
 
 // 跨设备同步 UI
 function syncDataUI() {
-  const action = prompt('选择同步操作：\n1 - 导出数据（JSON 文件）\n2 - 导入数据（JSON 文件）\n3 - 同步到 GitHub\n4 - 从 GitHub 下载\n\n请输入数字（1-4）：');
+  const action = prompt(`
+🔄 数据同步操作
+
+1️⃣ 导出数据（JSON 文件）
+   - 保存到本地
+   - 发送给他设备导入
+
+2️⃣ 导入数据（JSON 文件）
+   - 粘贴 JSON 内容
+   - 恢复数据
+
+3️⃣ 同步到 GitHub（推荐）
+   - 自动备份到云端
+   - 多设备自动同步
+   
+4️⃣ 从 GitHub 下载
+   - 从云端下载数据
+   - 恢复最新数据
+
+📖 详细指南：见 QUICK_SYNC.md
+
+请输入数字（1-4）：`);
   
   switch(action) {
     case '1':
@@ -1834,11 +1855,24 @@ function syncDataUI() {
       if (json) importData(json);
       break;
     case '3':
-      const token1 = prompt('请输入 GitHub Token：\n\n获取方式：\n1. 访问 https://github.com/settings/tokens\n2. 创建新 Token（勾选 repo 权限）\n3. 复制 Token');
+      const token1 = prompt(`
+🔑 输入 GitHub Token
+
+获取方式：
+1. 访问 https://github.com/settings/tokens
+2. 点击 "Generate new token (classic)"
+3. Note 填写：Clinic Sync
+4. 勾选权限：repo（完整仓库权限）
+5. 点击 "Generate token"
+6. 立即复制 Token（以 ghp_ 开头）
+
+⚠️ Token 只显示一次，请妥善保管！
+
+输入 Token：`);
       if (token1) syncToGitHub(token1);
       break;
     case '4':
-      const token2 = prompt('请输入 GitHub Token：');
+      const token2 = prompt('🔑 输入 GitHub Token：');
       if (token2) syncFromGitHub(token2);
       break;
     default:
