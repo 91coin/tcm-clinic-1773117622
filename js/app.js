@@ -437,6 +437,10 @@ function getDiagnosisHTML() {
 // 处方管理
 function getPrescriptionHTML() {
   return `
+    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+      <input type="text" class="form-input" placeholder="🔍 搜索处方..." id="search-prescription" style="flex: 1;">
+    </div>
+    
     <div class="table-container">
       <div class="table-header">
         <div class="table-title">💊 处方记录</div>
@@ -447,26 +451,101 @@ function getPrescriptionHTML() {
             <th>处方号</th>
             <th>患者姓名</th>
             <th>日期</th>
-            <th>类型</th>
+            <th>诊断</th>
+            <th>方剂</th>
             <th>金额</th>
             <th>状态</th>
+            <th>操作</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="prescription-list">
           ${prescriptions.map(p => `
             <tr>
               <td>${p.id}</td>
               <td>${p.patient_name}</td>
               <td>${formatDate(p.date)}</td>
-              <td>${p.type}</td>
+              <td>${p.diagnosis}</td>
+              <td>${p.formula_name || '自定义'}</td>
               <td>${formatMoney(p.total_amount)}</td>
-              <td><span class="status-badge ${p.status === '已缴费' ? 'success' : 'warning'}">${p.status}</span></td>
+              <td><span class="status-badge ${p.status === '已缴费' ? 'success' : p.status === '待缴费' ? 'warning' : 'info'}">${p.status}</span></td>
+              <td>
+                <button class="btn btn-sm btn-info" onclick="viewPrescriptionDetail('${p.id}')">📄 查看</button>
+              </td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     </div>
+    
+    <!-- 处方详情弹窗 -->
+    <div class="modal-overlay" id="prescription-detail-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">💊 处方详情</h2>
+          <button class="modal-close" onclick="closeModal('prescription-detail-modal')">×</button>
+        </div>
+        <div class="modal-body" id="prescription-detail-content"></div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal('prescription-detail-modal')">关闭</button>
+          <button class="btn btn-primary" onclick="goToPayment()">💰 去缴费</button>
+        </div>
+      </div>
+    </div>
   `;
+}
+
+// 查看处方详情
+let currentPrescriptionId = null;
+
+function viewPrescriptionDetail(prescriptionId) {
+  currentPrescriptionId = prescriptionId;
+  const p = prescriptions.find(pre => pre.id === prescriptionId);
+  if (!p) return;
+  
+  document.getElementById('prescription-detail-content').innerHTML = `
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px;">
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">处方号</div>
+        <div style="font-size: 16px; font-weight: 600;">${p.id}</div>
+      </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">患者姓名</div>
+        <div style="font-size: 16px; font-weight: 600;">${p.patient_name}</div>
+      </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">诊断</div>
+        <div style="font-size: 16px; font-weight: 600;">${p.diagnosis}（${p.syndrome}）</div>
+      </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">金额</div>
+        <div style="font-size: 16px; font-weight: 600; color: #2c5f2d;">${formatMoney(p.total_amount)}</div>
+      </div>
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #2c5f2d;">📋 处方组成</div>
+      <div style="white-space: pre-line; line-height: 1.8;">${p.prescription_composition}</div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">用法说明</div>
+        <div style="font-size: 15px; font-weight: 600;">${p.usage_instruction}</div>
+      </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">用药天数</div>
+        <div style="font-size: 15px; font-weight: 600;">${p.days}天</div>
+      </div>
+    </div>
+  `;
+  
+  openModal('prescription-detail-modal');
+}
+
+function goToPayment() {
+  closeModal('prescription-detail-modal');
+  showPage('payment');
+  showToast('请前往收费处缴费', 'info');
 }
 
 // 收费结算
@@ -521,6 +600,11 @@ function getInventoryHTML() {
   const lowStock = herbs.filter(h => h.stock < h.alert_threshold);
   
   return `
+    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+      <input type="text" class="form-input" placeholder="🔍 搜索药材..." id="search-herb" style="flex: 1;">
+      <button class="btn btn-primary" onclick="openInventoryModal()">➕ 入库登记</button>
+    </div>
+    
     ${lowStock.length > 0 ? `
       <div style="background: #fff3cd; border-left: 4px solid #f39c12; padding: 16px 24px; border-radius: 12px; margin-bottom: 24px;">
         <div style="display: flex; align-items: center; gap: 12px;">
@@ -536,7 +620,6 @@ function getInventoryHTML() {
     <div class="table-container">
       <div class="table-header">
         <div class="table-title">📦 药材库存</div>
-        <button class="btn btn-primary" onclick="openInventoryModal()">➕ 入库登记</button>
       </div>
       <table class="table">
         <thead>
@@ -544,9 +627,9 @@ function getInventoryHTML() {
             <th>药材编号</th>
             <th>药材名称</th>
             <th>分类</th>
+            <th>性味</th>
             <th>库存</th>
             <th>单价</th>
-            <th>预警值</th>
             <th>状态</th>
           </tr>
         </thead>
@@ -556,16 +639,75 @@ function getInventoryHTML() {
               <td>${h.id}</td>
               <td>${h.name}</td>
               <td>${h.category}</td>
+              <td>${h.nature}</td>
               <td style="${h.stock < h.alert_threshold ? 'color: #e74c3c; font-weight: 600;' : ''}">${h.stock}${h.unit}</td>
               <td>¥${h.price.toFixed(2)}/${h.unit}</td>
-              <td>${h.alert_threshold}${h.unit}</td>
               <td>${h.stock < h.alert_threshold ? '<span class="status-badge danger">库存不足</span>' : '<span class="status-badge success">充足</span>'}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     </div>
+    
+    <!-- 药材详情弹窗 -->
+    <div class="modal-overlay" id="herb-detail-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">🌿 药材详情</h2>
+          <button class="modal-close" onclick="closeModal('herb-detail-modal')">×</button>
+        </div>
+        <div class="modal-body" id="herb-detail-content"></div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal('herb-detail-modal')">关闭</button>
+        </div>
+      </div>
+    </div>
   `;
+}
+
+// 查看药材详情
+function viewHerbDetail(herbId) {
+  const h = herbs.find(herb => herb.id === herbId);
+  if (!h) return;
+  
+  document.getElementById('herb-detail-content').innerHTML = `
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px;">
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">药材编号</div>
+        <div style="font-size: 16px; font-weight: 600;">${h.id}</div>
+      </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">药材名称</div>
+        <div style="font-size: 16px; font-weight: 600;">${h.name}</div>
+      </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">分类</div>
+        <div style="font-size: 16px; font-weight: 600;">${h.category}</div>
+      </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">性味</div>
+        <div style="font-size: 16px; font-weight: 600;">${h.nature}</div>
+      </div>
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #2c5f2d;">📋 功效主治</div>
+      <div style="line-height: 1.8;">${h.effects}</div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">归经</div>
+        <div style="font-size: 15px; font-weight: 600;">${h.meridian}</div>
+      </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">库存</div>
+        <div style="font-size: 15px; font-weight: 600;">${h.stock}${h.unit}</div>
+      </div>
+    </div>
+  `;
+  
+  openModal('herb-detail-modal');
 }
 
 // 统计报表
