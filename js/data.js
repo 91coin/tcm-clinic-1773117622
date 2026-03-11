@@ -132,7 +132,9 @@ async function syncToGitHub(token) {
       users
     };
     
-    const content = btoa(JSON.stringify(data, null, 2));
+    // 修复中文编码问题
+    const jsonString = JSON.stringify(data, null, 2);
+    const content = btoa(unescape(encodeURIComponent(jsonString)));
     
     // 先获取当前文件的 SHA
     const getResponse = await fetch('https://api.github.com/repos/91coin/tcm-clinic-1773117622/contents/data.json', {
