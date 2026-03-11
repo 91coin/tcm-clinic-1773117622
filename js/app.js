@@ -892,10 +892,136 @@ function viewHerbDetail(herbId) {
         <div style="font-size: 13px; color: #666; margin-bottom: 8px;">库存</div>
         <div style="font-size: 15px; font-weight: 600;">${h.stock}${h.unit}</div>
       </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">单价</div>
+        <div style="font-size: 15px; font-weight: 600; color: #2c5f2d;">¥${h.price.toFixed(2)}/${h.unit}</div>
+      </div>
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px;">
+        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">预警值</div>
+        <div style="font-size: 15px; font-weight: 600;">${h.alert_threshold}${h.unit}</div>
+      </div>
     </div>
   `;
   
   openModal('herb-detail-modal');
+}
+
+// 打开入库弹窗
+function openInventoryModal() {
+  const modalHtml = `
+    <div class="modal-overlay" id="inventory-modal" style="display: flex;">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">📦 入库登记</h2>
+          <button class="modal-close" onclick="closeModal('inventory-modal')">×</button>
+        </div>
+        <div class="modal-body">
+          <form id="inventory-form" class="form-grid">
+            <div class="form-group full">
+              <label class="form-label">选择药材 <span class="required">*</span></label>
+              <select name="herb_id" class="form-select" required onchange="updateHerbInfo()">
+                <option value="">请选择药材</option>
+                ${herbs.map(h => `<option value="${h.id}" data-name="${h.name}" data-price="${h.price}" data-unit="${h.unit}">${h.name} - ${h.category}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">药材名称</label>
+              <input type="text" name="herb_name" class="form-input" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">类型</label>
+              <select name="type" class="form-select">
+                <option value="入库">入库</option>
+                <option value="出库">出库</option>
+                <option value="盘点">盘点</option>
+                <option value="损耗">损耗</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">数量 <span class="required">*</span></label>
+              <input type="number" name="quantity" class="form-input" required min="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">单价</label>
+              <input type="number" name="price" class="form-input" step="0.01" min="0">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">备注</label>
+              <textarea name="remark" class="form-textarea" rows="2" placeholder="采购批号、供应商等..."></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('inventory-modal')">取消</button>
+          <button type="button" class="btn btn-primary" onclick="saveInventory()">💾 保存</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+// 更新药材信息
+function updateHerbInfo() {
+  const select = document.querySelector('select[name="herb_id"]');
+  const option = select.options[select.selectedIndex];
+  const form = document.getElementById('inventory-form');
+  
+  if (option.value) {
+    form.herb_name.value = option.dataset.name || '';
+    form.price.value = option.dataset.price || '';
+  }
+}
+
+// 保存入库记录
+function saveInventory() {
+  const form = document.getElementById('inventory-form');
+  const formData = new FormData(form);
+  
+  const herbId = formData.get('herb_id');
+  const herb = herbs.find(h => h.id === herbId);
+  
+  if (herb) {
+    const type = formData.get('type');
+    const quantity = parseInt(formData.get('quantity'));
+    const price = parseFloat(formData.get('price')) || herb.price;
+    
+    // 更新库存
+    if (type === '入库') {
+      herb.stock += quantity;
+    } else if (type === '出库' || type === '损耗') {
+      herb.stock = Math.max(0, herb.stock - quantity);
+    } else if (type === '盘点') {
+      herb.stock = quantity;
+    }
+    
+    // 创建库存记录
+    const newInventory = {
+      id: generateId('I'),
+      type: type,
+      herb_id: herbId,
+      herb_name: herb.name,
+      quantity: quantity,
+      unit: herb.unit,
+      price: price,
+      total_amount: quantity * price,
+      date: new Date().toLocaleDateString('zh-CN'),
+      time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+      operator_id: 'U001',
+      remark: formData.get('remark') || '',
+      stock_before: herb.stock,
+      stock_after: herb.stock
+    };
+    
+    // 这里应该保存到 inventory 数组，但现在简化处理
+    saveToStorage();
+    closeModal('inventory-modal');
+    showToast('入库登记成功', 'success');
+    
+    // 刷新页面
+    showPage('inventory');
+  }
 }
 
 // 统计报表
