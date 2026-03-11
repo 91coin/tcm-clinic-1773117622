@@ -173,6 +173,66 @@ function getPatientsHTML() {
       <button class="btn btn-outline" onclick="exportData()">📤 导出数据</button>
     </div>
     
+    <!-- 新建患者弹窗 -->
+    <div class="modal-overlay" id="patient-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">➕ 新建患者档案</h2>
+          <button class="modal-close" onclick="closeModal('patient-modal')">×</button>
+        </div>
+        <div class="modal-body">
+          <form id="patient-form" class="form-grid">
+            <div class="form-group">
+              <label class="form-label">姓名 <span class="required">*</span></label>
+              <input type="text" name="name" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">性别 <span class="required">*</span></label>
+              <select name="gender" class="form-select" required>
+                <option value="">请选择</option>
+                <option value="男">男</option>
+                <option value="女">女</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">年龄 <span class="required">*</span></label>
+              <input type="number" name="age" class="form-input" required min="1" max="150">
+            </div>
+            <div class="form-group">
+              <label class="form-label">联系电话 <span class="required">*</span></label>
+              <input type="tel" name="phone" class="form-input" required pattern="1[3-9]\\d{9}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">体质</label>
+              <select name="constitution" class="form-select">
+                <option value="平和质">平和质</option>
+                <option value="气虚质">气虚质</option>
+                <option value="阳虚质">阳虚质</option>
+                <option value="阴虚质">阴虚质</option>
+                <option value="痰湿质">痰湿质</option>
+                <option value="湿热质">湿热质</option>
+                <option value="血瘀质">血瘀质</option>
+                <option value="气郁质">气郁质</option>
+                <option value="特禀质">特禀质</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">过敏史</label>
+              <input type="text" name="allergies" class="form-input" placeholder="如：青霉素、无">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">既往病史</label>
+              <textarea name="medical_history" class="form-textarea" rows="3" placeholder="如：高血压、糖尿病、无"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal('patient-modal')">取消</button>
+          <button class="btn btn-primary" onclick="savePatient()">💾 保存</button>
+        </div>
+      </div>
+    </div>
+    
     <div class="table-container">
       <table class="table">
         <thead>
@@ -230,6 +290,66 @@ function getRegistrationHTML() {
     <div style="display: flex; gap: 12px; margin-bottom: 24px;">
       <input type="text" class="form-input" placeholder="🔍 搜索患者..." id="search-registration" style="flex: 1;">
       <button class="btn btn-primary" onclick="openRegistrationModal()">➕ 现场挂号</button>
+    </div>
+    
+    <!-- 现场挂号弹窗 -->
+    <div class="modal-overlay" id="registration-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">📝 现场挂号</h2>
+          <button class="modal-close" onclick="closeModal('registration-modal')">×</button>
+        </div>
+        <div class="modal-body">
+          <form id="registration-form" class="form-grid">
+            <div class="form-group full">
+              <label class="form-label">选择患者 <span class="required">*</span></label>
+              <select name="patient_id" class="form-select" required onchange="fillPatientInfo(this)">
+                <option value="">请选择患者</option>
+                ${patients.map(p => `<option value="${p.id}" data-name="${p.name}" data-gender="${p.gender}" data-age="${p.age}" data-phone="${p.phone}">${p.name} (${p.gender}, ${p.age}岁) - ${p.phone}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">姓名</label>
+              <input type="text" name="patient_name" class="form-input" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">性别</label>
+              <input type="text" name="gender" class="form-input" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">年龄</label>
+              <input type="text" name="age" class="form-input" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">联系电话</label>
+              <input type="text" name="phone" class="form-input" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">类型 <span class="required">*</span></label>
+              <select name="type" class="form-select" required>
+                <option value="初诊">初诊</option>
+                <option value="复诊">复诊</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">选择医生 <span class="required">*</span></label>
+              <select name="doctor_id" class="form-select" required>
+                <option value="D001">李医师</option>
+                <option value="D002">王医师</option>
+                <option value="D003">张医师</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">主诉症状</label>
+              <textarea name="chief_complaint" class="form-textarea" rows="3" placeholder="请描述患者主要症状..."></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal('registration-modal')">取消</button>
+          <button class="btn btn-primary" onclick="saveRegistration()">💾 保存</button>
+        </div>
+      </div>
     </div>
     
     <div class="table-container">
@@ -511,6 +631,85 @@ function initPageEvents(page) {
       }, 300);
     });
   }
+}
+
+// ==================== 患者管理功能 ====================
+
+function openPatientModal() {
+  openModal('patient-modal');
+}
+
+function savePatient() {
+  const form = document.getElementById('patient-form');
+  const formData = new FormData(form);
+  
+  const newPatient = {
+    id: generateId('P'),
+    name: formData.get('name'),
+    gender: formData.get('gender'),
+    age: parseInt(formData.get('age')),
+    phone: formData.get('phone'),
+    constitution: formData.get('constitution'),
+    allergies: formData.get('allergies') || '无',
+    medical_history: formData.get('medical_history') || '无',
+    register_date: new Date().toLocaleDateString('zh-CN'),
+    visit_count: 0
+  };
+  
+  patients.unshift(newPatient);
+  saveToStorage();
+  closeModal('patient-modal');
+  showToast('患者档案创建成功', 'success');
+  
+  // 刷新列表
+  showPage('patients');
+}
+
+function openRegistrationModal() {
+  openModal('registration-modal');
+}
+
+function fillPatientInfo(select) {
+  const option = select.options[select.selectedIndex];
+  if (!option.value) return;
+  
+  const form = document.getElementById('registration-form');
+  form.patient_name.value = option.dataset.name || '';
+  form.gender.value = option.dataset.gender || '';
+  form.age.value = option.dataset.age || '';
+  form.phone.value = option.dataset.phone || '';
+}
+
+function saveRegistration() {
+  const form = document.getElementById('registration-form');
+  const formData = new FormData(form);
+  
+  const doctorSelect = form.querySelector('select[name="doctor_id"]');
+  const doctorName = doctorSelect.options[doctorSelect.selectedIndex].text;
+  
+  const newRegistration = {
+    id: generateId('R'),
+    patient_id: formData.get('patient_id'),
+    patient_name: formData.get('patient_name'),
+    gender: formData.get('gender'),
+    age: parseInt(formData.get('age')),
+    phone: formData.get('phone'),
+    date: new Date().toLocaleDateString('zh-CN'),
+    time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+    type: formData.get('type'),
+    doctor_id: formData.get('doctor_id'),
+    doctor_name: doctorName,
+    chief_complaint: formData.get('chief_complaint') || '',
+    status: '待就诊'
+  };
+  
+  registrations.unshift(newRegistration);
+  saveToStorage();
+  closeModal('registration-modal');
+  showToast('挂号成功', 'success');
+  
+  // 刷新列表
+  showPage('registration');
 }
 
 // 过滤数据
