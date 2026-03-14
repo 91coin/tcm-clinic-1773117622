@@ -3,310 +3,1180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏥 中医门诊管理系统 v0.6.1</title>
+    <title>🏥 中医门诊管理系统 v0.7.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2c5530; --primary-light: #4a7c59; --primary-dark: #1a3a1f; --accent: #c9a961; --bg: #f8f9fa; --text: #2d3748; --border: #e2e8f0; --success: #48bb78; --warning: #ed8936; --danger: #f56565; }
+        /* ===== CSS Variables - Design System ===== */
+        :root {
+            /* Primary Colors - 中医风格 */
+            --primary: #1a5f2e;
+            --primary-light: #2d7a46;
+            --primary-dark: #0f3d1e;
+            --primary-alpha: rgba(26, 95, 46, 0.1);
+            
+            /* Accent - 金色点缀 */
+            --accent: #c9a227;
+            --accent-light: #e8c547;
+            --accent-dark: #a68520;
+            
+            /* Backgrounds */
+            --bg-main: #f5f7f2;
+            --bg-card: #ffffff;
+            --bg-sidebar: #1a2e1a;
+            
+            /* Text */
+            --text-primary: #1a1a1a;
+            --text-secondary: #5a6a5a;
+            --text-muted: #8a9a8a;
+            --text-inverse: #ffffff;
+            
+            /* Semantic Colors */
+            --success: #22a855;
+            --warning: #e8a832;
+            --danger: #dc3545;
+            --info: #3b82c4;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --shadow-xl: 0 16px 48px rgba(0,0,0,0.15);
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.25s ease;
+            --transition-slow: 0.4s ease;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+        }
+
+        /* ===== Reset & Base ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
-        .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); padding: 20px; }
-        .login-card { background: white; border-radius: 20px; padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .login-logo { text-align: center; margin-bottom: 30px; }
-        .login-logo h1 { color: var(--primary); font-size: 1.8em; margin-bottom: 10px; }
-        .login-logo p { color: #718096; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; border: 2px solid var(--border); border-radius: 10px; font-size: 1em; }
-        .form-group input:focus { outline: none; border-color: var(--primary-light); }
-        .btn { padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; font-size: 1em; font-weight: 500; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(44,85,48,0.3); }
-        .btn-secondary { background: var(--bg); color: var(--text); border: 2px solid var(--border); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-sm { padding: 6px 12px; font-size: 0.85em; }
-        .main-app { display: none; }
-        .header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.4em; }
-        .user-info { display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 36px; height: 36px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .nav { display: flex; background: white; padding: 0 20px; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .nav-item { padding: 15px 20px; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
-        .nav-item.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .panel { display: none; }
-        .panel.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--border); flex-wrap: wrap; gap: 10px; }
-        .card-header h3 { color: var(--primary); }
-        .table { width: 100%; border-collapse: collapse; }
-        .table th { background: #f8faf8; color: var(--primary); padding: 12px 10px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--primary-light); }
-        .table td { padding: 12px 10px; border-bottom: 1px solid var(--border); }
-        .table tbody tr:nth-child(odd) { background: #f8faf8; }
-        .table tbody tr:nth-child(even) { background: #ffffff; }
-        .table tbody tr:hover { background: #e8f5e9; transform: scale(1.005); transition: all 0.2s ease; }
-        .table-responsive { overflow-x: auto; }
-        .tag { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; }
-        .tag-success { background: #d4edda; color: #155724; }
-        .tag-warning { background: #fff3cd; color: #856404; }
-        .grid-2, .grid-4 { display: grid; gap: 15px; }
+        
+        html { font-size: 16px; }
+        
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== Login Page ===== */
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: 
+                linear-gradient(135deg, var(--primary-dark) 0%, 
+                var(--primary) 50%,
+                var(--primary-light) 100%;
+            padding: var(--space-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-page::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(201, 162, 39, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-2%, -2%) rotate(1deg); }
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .login-logo h1 {
+            color: var(--primary);
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .login-logo p {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        /* ===== Form Elements ===== */
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e5ebe5;
+            border-radius: var(--radius-md);
+            font-size: 1em;
+            font-family: inherit;
+            transition: all var(--transition-fast);
+            background: var(--bg-main);
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--bg-card);
+            box-shadow: 0 0 0 4px var(--primary-alpha);
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all var(--transition-normal);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(26, 95, 46, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(26, 95, 46, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 2px solid #e5ebe5;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85em;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* ===== Main App Layout ===== */
+        .main-app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .main-app.active {
+            display: block;
+        }
+
+        /* ===== Header ===== */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.3em;
+            font-weight: 600;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 1.1em;
+        }
+
+        /* ===== Navigation ===== */
+        .nav {
+            display: flex;
+            background: var(--bg-card);
+            padding: 0 var(--space-lg);
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+            position: sticky;
+            top: 60px;
+            z-index: 99;
+        }
+
+        .nav::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .nav::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+
+        .nav::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 2px;
+        }
+
+        .nav-item {
+            padding: var(--space-md) var(--space-lg);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+
+        .nav-item:hover {
+            color: var(--primary);
+            background: var(--primary-alpha);
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* ===== Container ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+        }
+
+        /* ===== Panels ===== */
+        .panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ===== Cards ===== */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-normal);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 2px solid #e5ebe5;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .card-header h3 {
+            color: var(--primary);
+            font-size: 1.2em;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        /* ===== Tables ===== */
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #f8faf8, #f0f4f0);
+            color: var(--primary);
+            padding: var(--space-md);
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-light);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table th:first-child {
+            border-radius: var(--radius-md) 0 0 0;
+        }
+
+        .table th:last-child {
+            border-radius: 0 var(--radius-md) 0 0;
+        }
+
+        .table td {
+            padding: var(--space-md);
+            border-bottom: 1px solid #e5ebe5;
+            font-size: 0.95em;
+        }
+
+        .table tbody tr {
+            transition: all var(--transition-fast);
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background: #fafefa;
+        }
+
+        .table tbody tr:hover {
+            background: #e8f5e9;
+            transform: scale(1.005);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ===== Tags ===== */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .tag-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .tag-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .tag-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .tag-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* ===== Grid ===== */
+        .grid-2, .grid-3, .grid-4 {
+            display: grid;
+            gap: var(--space-md);
+        }
+
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-4 { grid-template-columns: repeat(4, 1fr); }
-        @media (max-width: 768px) { .grid-2, .grid-4 { grid-template-columns: 1fr; } }
-        .stat-card { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 20px; border-radius: 15px; text-align: center; }
-        .stat-card .num { font-size: 2em; font-weight: bold; }
-        .sync-bar { position: fixed; top: 0; left: 0; right: 0; background: var(--primary-dark); color: white; padding: 8px 20px; text-align: center; font-size: 0.9em; z-index: 1000; display: none; }
-        .sync-bar.show { display: block; animation: slideDown 0.3s; }
+
+        @media (max-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { 
+                grid-template-columns: 1fr; 
+            }
+        }
+
+        /* ===== Stat Cards ===== */
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .stat-card .num {
+            font-size: 2.5em;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: var(--space-xs);
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        /* ===== Sync Bar ===== */
+        .sync-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-dark);
+            color: white;
+            padding: 10px var(--space-lg);
+            text-align: center;
+            font-size: 0.9em;
+            z-index: 1000;
+            display: none;
+            font-weight: 500;
+        }
+
+        .sync-bar.show { display: block; animation: slideDown 0.3s ease; }
         .sync-bar.syncing { background: var(--warning); }
         .sync-bar.success { background: var(--success); }
         .sync-bar.error { background: var(--danger); }
-        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
-        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--primary); color: white; padding: 15px 25px; border-radius: 10px; z-index: 2000; transform: translateY(100px); opacity: 0; transition: all 0.3s; }
-        .toast.show { transform: translateY(0); opacity: 1; }
-        @media (max-width: 576px) { .toast { left: 20px; right: 20px; } }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal.show { display: flex; }
-        .modal-content { background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 650px; max-height: 85vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
-        .close-btn { background: none; border: none; font-size: 1.5em; cursor: pointer; }
-        .herb-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .herb-card { background: #f8faf8; border: 1px solid var(--border); border-radius: 12px; padding: 18px; cursor: pointer; transition: all 0.3s ease; }
-        .herb-card:nth-child(odd) { background: linear-gradient(135deg, #f8faf8 0%, #e8f5e9 100%); }
-        .herb-card:nth-child(even) { background: linear-gradient(135deg, #ffffff 0%, #fff8e1 100%); }
-        .herb-card:hover { border-color: var(--primary-light); transform: translateY(-5px); box-shadow: 0 8px 20px rgba(44,85,48,0.2); }
-        .herb-card:active { transform: scale(0.98); }
-        .herb-card h4 { color: var(--primary); margin-bottom: 10px; }
-        .herb-card-actions { display: flex; gap: 8px; margin-top: 12px; }
-        .tcm-section { margin: 20px 0; }
-        .tcm-section h4 { color: var(--primary); margin-bottom: 12px; }
-        textarea { resize: vertical; min-height: 80px; }
-        .empty-state { text-align: center; padding: 50px 20px; color: #718096; }
-        .empty-state .icon { font-size: 3em; margin-bottom: 15px; }
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        .select-wrapper { position: relative; }
-        .select-wrapper select { appearance: none; padding-right: 40px; }
-        .select-wrapper::after { content: '▼'; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none; }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            padding: 16px 28px;
+            border-radius: var(--radius-md);
+            z-index: 2000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            font-weight: 500;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 576px) {
+            .toast { 
+                left: 20px; 
+                right: 20px; 
+                bottom: 20px;
+            }
+        }
+
+        /* ===== Modal ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-lg);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            width: 100%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 2px solid #e5ebe5;
+        }
+
+        .modal-header h3 {
+            color: var(--primary);
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color var(--transition-fast);
+        }
+
+        .close-btn:hover {
+            color: var(--danger);
+        }
+
+        /* ===== Herb Cards ===== */
+        .herb-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .herb-card {
+            background: linear-gradient(135deg, #f8faf8 0%, #f0f7f0 100%);
+            border: 1px solid #e5ebe5;
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .herb-card:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(26,95,46,0.15);
+        }
+
+        .herb-card h4 {
+            color: var(--primary);
+            margin-bottom: var(--space-sm);
+            font-weight: 600;
+        }
+
+        .herb-card-actions {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+
+        /* ===== TCM Sections ===== */
+        .tcm-section {
+            margin: var(--space-lg) 0;
+        }
+
+        .tcm-section h4 {
+            color: var(--primary);
+            margin-bottom: var(--space-md);
+            font-weight: 600;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* ===== Empty State ===== */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-2xl) var(--space-lg);
+            color: var(--text-secondary);
+        }
+
+        .empty-state .icon {
+            font-size: 3em;
+            margin-bottom: var(--space-md);
+        }
+
+        /* ===== Button Groups ===== */
+        .btn-group {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        /* ===== Select Wrapper ===== */
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper select {
+            appearance: none;
+            padding-right: 45px;
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            pointer-events: none;
+            font-size: 0.7em;
+        }
+
+        /* ===== Version Badge ===== */
+        .version-badge {
+            background: var(--accent);
+            color: var(--primary-dark);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            font-weight: 700;
+            margin-left: var(--space-sm);
+        }
+
+        /* ===== Animations ===== */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
     <div id="syncBar" class="sync-bar">☁️ 正在同步到云端...</div>
+    
     <div id="loginPage" class="login-page">
         <div class="login-card">
             <div class="login-logo">
-                <h1>🏥 中医门诊管理系统 v0.6.1</h1>
-                <p>☁️ 自动云端同步（修复版）</p>
+                <h1>🏥 中医门诊管理系统 <span class="version-badge">v0.7.0</span></h1>
+                <p>✨ 全新升级版本</p>
             </div>
             <div class="form-group">
                 <label>GitHub Token (用于云端同步)</label>
                 <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx">
-                <small style="color:#718096">创建：GitHub → Settings → Developer settings → Personal access tokens → 勾选 gist 权限</small>
             </div>
             <div class="form-group">
-                <label>用户名</label>
-                <input type="text" id="username" placeholder="admin 或 doctor">
+                <label>选择角色</label>
+                <select id="roleSelect">
+                    <option value="admin">🏥 诊所管理员</option>
+                    <option value="doctor">👨‍⚕️ 中医师</option>
+                    <option value="pharmacist">药剂师</option>
+                </select>
             </div>
-            <div class="form-group">
-                <label>密码</label>
-                <input type="password" id="password" placeholder="123456">
-            </div>
-            <button class="btn btn-primary" style="width:100%" onclick="login()">🔐 登录</button>
-            <p style="text-align:center;margin-top:20px;color:#718096;font-size:0.85em">默认用户：admin/123456 或 doctor/123456</p>
+            <button class="btn btn-primary btn-block" onclick="login()">
+                🚀 登录系统
+            </button>
         </div>
     </div>
+
     <div id="mainApp" class="main-app">
         <div class="header">
-            <h1>🏥 中医门诊管理系统</h1>
+            <h1>🏥 中医门诊管理系统 <span class="version-badge">v0.7.0</span></h1>
             <div class="user-info">
-                <div class="user-avatar" id="userAvatar">A</div>
-                <span id="userName">Admin</span>
-                <button class="btn btn-secondary btn-sm" onclick="logout()">退出</button>
+                <span id="userName">医</span>
+                <div class="user-avatar" id="userAvatar">医</div>
             </div>
         </div>
-        <div class="nav">
-            <div class="nav-item active" onclick="showPanel('dashboard')">📊 工作台</div>
-            <div class="nav-item" onclick="showPanel('register')">📋 挂号登记</div>
-            <div class="nav-item" onclick="showPanel('patients')">👥 患者管理</div>
-            <div class="nav-item" onclick="showPanel('records')">📝 病例管理</div>
-            <div class="nav-item" onclick="showPanel('prescriptions')">💊 方剂库</div>
+
+        <div class="nav" id="mainNav">
+            <div class="nav-item active" data-panel="home">📊 首页</div>
+            <div class="nav-item" data-panel="patients">👥 患者管理</div>
+            <div class="nav-item" data-panel="appointments">📝 预约接诊</div>
+            <div class="nav-item" data-panel="diagnosis">🩺 中医诊疗</div>
+            <div class="nav-item" data-panel="prescriptions">💊 处方管理</div>
+            <div class="nav-item" data-panel="billing">💰 收费结算</div>
+            <div class="nav-item" data-panel="inventory">📦 药房库存</div>
+            <div class="nav-item" data-panel="reports">📈 统计报表</div>
+            <div class="nav-item" data-panel="settings">⚙️ 系统管理</div>
         </div>
+
         <div class="container">
-            <div id="dashboard" class="panel active">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>☁️ 云端同步状态</h3>
-                        <span id="syncStatus" class="tag tag-success">🟢 已同步</span>
+            <!-- Home Panel -->
+            <div id="home" class="panel active">
+                <div class="grid-4" style="margin-bottom: var(--space-lg);">
+                    <div class="stat-card">
+                        <div class="num">128</div>
+                        <div class="label">今日患者</div>
                     </div>
-                    <p id="syncInfo" style="color:#718096">最后同步：--</p>
-                </div>
-                <div class="grid-4">
-                    <div class="stat-card"><div class="num" id="statPatients">0</div><div>总患者数</div></div>
-                    <div class="stat-card"><div class="num" id="statToday">0</div><div>今日挂号</div></div>
-                    <div class="stat-card"><div class="num" id="statRecords">0</div><div>病例总数</div></div>
-                    <div class="stat-card"><div class="num" id="statPrescriptions">0</div><div>方剂数量</div></div>
-                </div>
-                <div class="card" style="margin-top:20px"><div class="card-header"><h3>📅 今日概览</h3></div><div id="todayList"></div></div>
-            </div>
-            <div id="register" class="panel">
-                <div class="card">
-                    <div class="card-header"><h3>📋 新患者挂号</h3></div>
-                    <div class="grid-2">
-                        <div class="form-group"><label>患者姓名 *</label><input type="text" id="regName"></div>
-                        <div class="form-group"><label>性别</label><select id="regGender"><option value="男">男</option><option value="女">女</option></select></div>
-                        <div class="form-group"><label>年龄</label><input type="number" id="regAge"></div>
-                        <div class="form-group"><label>联系电话</label><input type="tel" id="regPhone"></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #c9a227, #e8c547);">
+                        <div class="num">45</div>
+                        <div class="label">待接诊</div>
                     </div>
-                    <div class="form-group"><label>主诉症状</label><textarea id="regSymptom" rows="2"></textarea></div>
-                    <div class="btn-group"><button class="btn btn-primary" onclick="registerPatient()">✅ 完成挂号</button><button class="btn btn-secondary" onclick="clearRegisterForm()">🔄 重置</button></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #3b82c4, #60a5fa);">
+                        <div class="num">83</div>
+                        <div class="label">已完成</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #22a855, #4ade80);">
+                        <div class="num">2,580</div>
+                        <div class="label">累计患者</div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>📋 今日待办</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>时间</th>
+                                        <th>患者</th>
+                                        <th>项目</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>09:00</td>
+                                        <td>张三</td>
+                                        <td>中医诊疗</td>
+                                        <td><span class="tag tag-warning">待接诊</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>09:30</td>
+                                        <td>李四</td>
+                                        <td>复诊</td>
+                                        <td><span class="tag tag-warning">待接诊</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10:00</td>
+                                        <td>王五</td>
+                                        <td>针灸治疗</td>
+                                        <td><span class="tag tag-success">已确认</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>📊 今日数据</h3>
+                        </div>
+                        <div style="padding: var(--space-md);">
+                            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5ebe5;">
+                                <span>门诊量</span>
+                                <strong>45 人</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5ebe5;">
+                                <span>处方数</span>
+                                <strong>38 份</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5ebe5;">
+                                <span>营收</span>
+                                <strong>¥12,580</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 10px 0;">
+                                <span>配药</span>
+                                <strong>32 副</strong>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Other Panels Placeholder -->
             <div id="patients" class="panel">
                 <div class="card">
-                    <div class="card-header"><h3>👥 患者列表</h3><button class="btn btn-primary btn-sm" onclick="showPanel('register')">➕ 新挂号</button></div>
-                    <div class="table-responsive"><table class="table"><thead><tr><th>单号</th><th>姓名</th><th>性别</th><th>年龄</th><th>电话</th><th>主诉</th><th>日期</th><th>操作</th></tr></thead><tbody id="patientList"></tbody></table></div>
+                    <div class="card-header">
+                        <h3>👥 患者管理</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-primary btn-sm" onclick="showModal('patientModal')">➕ 添加患者</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>姓名</th>
+                                    <th>性别</th>
+                                    <th>年龄</th>
+                                    <th>电话</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientsTable">
+                                <tr>
+                                    <td>P001</td>
+                                    <td>张三</td>
+                                    <td>男</td>
+                                    <td>45</td>
+                                    <td>13800138000</td>
+                                    <td><span class="tag tag-success">正常</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm">查看</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div id="records" class="panel">
+
+            <div id="appointments" class="panel">
                 <div class="card">
-                    <div class="card-header"><h3>📝 病例列表</h3><button class="btn btn-primary btn-sm" onclick="openRecordModal()">➕ 新建病例</button></div>
-                    <div class="table-responsive"><table class="table"><thead><tr><th>病例号</th><th>患者</th><th>辨证</th><th>方剂</th><th>医师</th><th>日期</th><th>操作</th></tr></thead><tbody id="recordList"></tbody></table></div>
+                    <div class="card-header">
+                        <h3>📝 预约接诊</h3>
+                    </div>
+                    <div class="empty-state">
+                        <div class="icon">📅</div>
+                        <p>预约管理系统 - 开发中...</p>
+                    </div>
                 </div>
             </div>
+
+            <div id="diagnosis" class="panel">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🩺 中医诊疗</h3>
+                    </div>
+                    <div class="empty-state">
+                        <div class="icon">🩺</div>
+                        <p>中医诊疗系统 - 开发中...</p>
+                    </div>
+                </div>
+            </div>
+
             <div id="prescriptions" class="panel">
                 <div class="card">
-                    <div class="card-header"><h3>💊 方剂库</h3><button class="btn btn-primary btn-sm" onclick="openPrescriptionModal()">➕ 新增方剂</button></div>
-                    <div class="herb-list" id="prescriptionList"></div>
+                    <div class="card-header">
+                        <h3>💊 处方管理</h3>
+                    </div>
+                    <div class="empty-state">
+                        <div class="icon">💊</div>
+                        <p>处方管理系统 - 开发中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="billing" class="panel">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>💰 收费结算</h3>
+                    </div>
+                    <div class="empty-state">
+                        <div class="icon">💰</div>
+                        <p>收费系统 - 开发中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="inventory" class="panel">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📦 药房库存</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-primary btn-sm">➕ 入库</button>
+                            <button class="btn btn-secondary btn-sm">📤 出库</button>
+                        </div>
+                    </div>
+                    <div class="empty-state">
+                        <div class="icon">🌿</div>
+                        <p>中药库存管理 - 开发中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reports" class="panel">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📈 统计报表</h3>
+                    </div>
+                    <div class="empty-state">
+                        <div class="icon">📈</div>
+                        <p>数据统计 - 开发中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings" class="panel">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>⚙️ 系统管理</h3>
+                    </div>
+                    <div class="empty-state">
+                        <div class="icon">⚙️</div>
+                        <p>系统设置 - 开发中...</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div id="recordModal" class="modal">
+
+    <div id="toast" class="toast">操作成功</div>
+
+    <!-- Patient Modal -->
+    <div id="patientModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h3>📝 新建/编辑病例</h3><button class="close-btn" onclick="closeModal('recordModal')">&times;</button></div>
-            <div class="form-group"><label>选择患者</label><div class="select-wrapper"><select id="recordPatient"></select></div></div>
-            <div class="tcm-section"><h4>🔍 四诊信息</h4><div class="grid-2"><div class="form-group"><label>望诊</label><textarea id="tcmWang" rows="2"></textarea></div><div class="form-group"><label>闻诊</label><textarea id="tcmWen" rows="2"></textarea></div></div><div class="grid-2"><div class="form-group"><label>问诊</label><textarea id="tcmWen2" rows="2"></textarea></div><div class="form-group"><label>切诊</label><textarea id="tcmQie" rows="2"></textarea></div></div></div>
-            <div class="tcm-section"><h4>📋 辨证论治</h4><div class="form-group"><label>辨证</label><input type="text" id="tcmDiagnosis"></div><div class="form-group"><label>治法</label><input type="text" id="tcmTreatment"></div></div>
-            <div class="tcm-section"><h4>💊 处方用药</h4><div class="form-group"><label>选择方剂</label><div class="select-wrapper"><select id="tcmPrescription" onchange="loadPrescription(this.value)"><option value="">-- 选择经典方剂 --</option></select></div></div><div class="form-group"><label>方药组成</label><textarea id="tcmHerbs" rows="3"></textarea></div><div class="form-group"><label>医嘱</label><textarea id="tcmAdvice" rows="2"></textarea></div></div>
-            <div class="btn-group"><button class="btn btn-primary" onclick="saveRecord()">💾 保存</button><button class="btn btn-secondary" onclick="closeModal('recordModal')">取消</button></div>
+            <div class="modal-header">
+                <h3>➕ 添加患者</h3>
+                <button class="close-btn" onclick="hideModal('patientModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>姓名</label>
+                <input type="text" id="patientName" placeholder="请输入患者姓名">
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>性别</label>
+                    <select id="patientGender">
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>年龄</label>
+                    <input type="number" id="patientAge" placeholder="年龄">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>电话</label>
+                <input type="tel" id="patientPhone" placeholder="手机号码">
+            </div>
+            <div class="form-group">
+                <label>备注</label>
+                <textarea id="patientNote" placeholder="其他信息..."></textarea>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="savePatient()">保存</button>
+                <button class="btn btn-secondary" onclick="hideModal('patientModal')">取消</button>
+            </div>
         </div>
     </div>
-    <div id="prescriptionModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><h3>💊 新增/编辑方剂</h3><button class="close-btn" onclick="closeModal('prescriptionModal')">&times;</button></div>
-            <div class="form-group"><label>方剂名称 *</label><input type="text" id="prescName"></div>
-            <div class="form-group"><label>出处</label><input type="text" id="prescSource"></div>
-            <div class="form-group"><label>组成</label><textarea id="prescComposition" rows="3"></textarea></div>
-            <div class="form-group"><label>功效</label><textarea id="prescEffect" rows="2"></textarea></div>
-            <div class="form-group"><label>主治</label><textarea id="prescIndication" rows="2"></textarea></div>
-            <div class="btn-group"><button class="btn btn-primary" onclick="savePrescription()">💾 保存</button><button class="btn btn-secondary" onclick="closeModal('prescriptionModal')">取消</button></div>
-        </div>
-    </div>
-    <div id="toast" class="toast"></div>
+
     <script>
-        const users = [{username:'admin',password:'123456',name:'管理员',role:'admin'},{username:'doctor',password:'123456',name:'张医师',role:'doctor'}];
-        let currentUser = null, githubToken = '';
-        let patients = JSON.parse(localStorage.getItem('tcm_patients')) || [];
-        let records = JSON.parse(localStorage.getItem('tcm_records')) || [];
-        let prescriptions = JSON.parse(localStorage.getItem('tcm_prescriptions')) || [];
-        let autoSyncTimer = null, pendingSync = false;
-        const classicPrescriptions = [
-            {name:'四君子汤',source:'《太平惠民和剂局方》',composition:'党参 15g、白术 12g、茯苓 15g、甘草 6g',effect:'益气健脾',indication:'脾胃气虚证'},
-            {name:'四物汤',source:'《太平惠民和剂局方》',composition:'熟地 15g、当归 12g、白芍 12g、川芎 9g',effect:'补血调血',indication:'营血虚滞证'},
-            {name:'六味地黄丸',source:'《小儿药证直诀》',composition:'熟地 24g、山茱萸 12g、山药 12g、泽泻 9g、丹皮 9g、茯苓 9g',effect:'滋阴补肾',indication:'肾阴虚证'},
-            {name:'小柴胡汤',source:'《伤寒论》',composition:'柴胡 12g、黄芩 9g、人参 9g、半夏 9g、甘草 6g、生姜 9g、大枣 4 枚',effect:'和解少阳',indication:'少阳证'},
-            {name:'桂枝汤',source:'《伤寒论》',composition:'桂枝 9g、白芍 9g、甘草 6g、生姜 9g、大枣 3 枚',effect:'解肌发表',indication:'外感风寒表虚证'},
-            {name:'麻黄汤',source:'《伤寒论》',composition:'麻黄 9g、桂枝 6g、杏仁 9g、甘草 3g',effect:'发汗解表',indication:'外感风寒表实证'},
-            {name:'补中益气汤',source:'《脾胃论》',composition:'黄芪 18g、党参 12g、白术 12g、当归 9g、陈皮 6g、升麻 6g、柴胡 6g、甘草 6g',effect:'补中益气',indication:'脾胃气虚证'},
-            {name:'逍遥散',source:'《太平惠民和剂局方》',composition:'柴胡 9g、当归 9g、白芍 9g、白术 9g、茯苓 9g、甘草 6g、薄荷 3g、生姜 3 片',effect:'疏肝解郁',indication:'肝郁血虚脾弱证'},
-            {name:'二陈汤',source:'《太平惠民和剂局方》',composition:'半夏 15g、陈皮 15g、茯苓 9g、甘草 5g',effect:'燥湿化痰',indication:'湿痰证'},
-            {name:'平胃散',source:'《太平惠民和剂局方》',composition:'苍术 12g、厚朴 9g、陈皮 9g、甘草 5g',effect:'燥湿运脾',indication:'湿滞脾胃证'},
-            {name:'藿香正气散',source:'《太平惠民和剂局方》',composition:'藿香 9g、紫苏 6g、白芷 6g、厚朴 9g、半夏 9g、陈皮 6g、茯苓 9g、白术 9g',effect:'解表化湿',indication:'外感风寒内伤湿滞'},
-            {name:'归脾汤',source:'《济生方》',composition:'黄芪 15g、党参 12g、白术 12g、当归 9g、茯苓 9g、远志 6g、酸枣仁 9g、木香 6g',effect:'益气补血',indication:'心脾气血两虚证'},
-            {name:'温胆汤',source:'《三因极一病证方论》',composition:'半夏 9g、竹茹 9g、枳实 9g、陈皮 9g、茯苓 9g、甘草 5g',effect:'理气化痰',indication:'胆胃不和证'},
-            {name:'血府逐瘀汤',source:'《医林改错》',composition:'桃仁 12g、红花 9g、当归 9g、生地 9g、川芎 6g、赤芍 6g、牛膝 9g、桔梗 6g',effect:'活血化瘀',indication:'胸中血瘀证'},
-            {name:'参苓白术散',source:'《太平惠民和剂局方》',composition:'党参 12g、茯苓 12g、白术 12g、山药 12g、白扁豆 9g、莲子 9g、薏苡仁 15g、砂仁 6g',effect:'益气健脾',indication:'脾虚湿盛证'},
-            {name:'龙胆泻肝汤',source:'《医方集解》',composition:'龙胆草 6g、黄芩 9g、栀子 9g、泽泻 9g、木通 6g、车前子 9g、当归 6g、生地 9g',effect:'清泻肝胆',indication:'肝胆实火证'},
-            {name:'银翘散',source:'《温病条辨》',composition:'金银花 15g、连翘 15g、桔梗 6g、薄荷 6g、竹叶 6g、甘草 5g、荆芥 6g、淡豆豉 6g',effect:'辛凉透表',indication:'温病初起'},
-            {name:'清营汤',source:'《温病条辨》',composition:'犀角 3g、生地 15g、玄参 9g、竹叶心 3g、麦冬 9g、丹参 6g、黄连 5g、金银花 9g',effect:'清营解毒',indication:'热入营分证'},
-            {name:'安宫牛黄丸',source:'《温病条辨》',composition:'牛黄 30g、郁金 30g、犀角 30g、黄连 30g、朱砂 30g、冰片 7.5g、麝香 7.5g',effect:'清热解毒',indication:'热病神昏'},
-            {name:'肾气丸',source:'《金匮要略》',composition:'熟地 24g、山药 12g、山茱萸 12g、泽泻 9g、茯苓 9g、丹皮 9g、桂枝 3g、附子 3g',effect:'补肾助阳',indication:'肾阳不足证'}
+        // ===== System Data =====
+        let currentUser = null;
+        let patients = [
+            { id: 'P001', name: '张三', gender: '男', age: 45, phone: '13800138000', status: '正常' },
+            { id: 'P002', name: '李四', gender: '女', age: 38, phone: '13900139000', status: '正常' },
+            { id: 'P003', name: '王五', gender: '男', age: 52, phone: '13700137000', status: 'VIP' },
         ];
-        function saveData() { localStorage.setItem('tcm_patients', JSON.stringify(patients)); localStorage.setItem('tcm_records', JSON.stringify(records)); localStorage.setItem('tcm_prescriptions', JSON.stringify(prescriptions)); scheduleAutoSync(); }
-        function login() { githubToken = document.getElementById('githubToken').value; if (githubToken) localStorage.setItem('tcm_token', githubToken); const u = document.getElementById('username').value, p = document.getElementById('password').value; const user = users.find(x => x.username === u && x.password === p); if (user) { currentUser = user; localStorage.setItem('tcm_user', JSON.stringify(user)); showMainApp(); } else { showToast('❌ 用户名或密码错误'); } }
-        function logout() { localStorage.removeItem('tcm_user'); location.reload(); }
-        function showMainApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; document.getElementById('userAvatar').textContent = currentUser.name[0]; document.getElementById('userName').textContent = currentUser.name; githubToken = localStorage.getItem('tcm_token') || ''; initApp(); if (githubToken) { syncFromGitHub(true); startAutoSync(); } else { updateSyncStatus('offline', '⚠️ 未配置 Token，仅本地存储'); } }
-        function initApp() { if (prescriptions.length === 0) { prescriptions = classicPrescriptions.map((p, i) => ({ ...p, id: 'p' + i })); saveData(); } updateStats(); renderPatients(); renderRecords(); renderPrescriptions(); }
-        function showPanel(id) { document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById(id).classList.add('active'); event.target.classList.add('active'); if (id === 'dashboard') updateStats(); if (id === 'patients') renderPatients(); if (id === 'records') renderRecords(); if (id === 'prescriptions') renderPrescriptions(); }
-        function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
-        function registerPatient() { const p = { id: 'REG' + Date.now(), name: document.getElementById('regName').value, gender: document.getElementById('regGender').value, age: document.getElementById('regAge').value, phone: document.getElementById('regPhone').value, symptom: document.getElementById('regSymptom').value, date: new Date().toLocaleDateString('zh-CN'), status: '待诊' }; if (!p.name) { showToast('❌ 请输入姓名'); return; } patients.push(p); saveData(); showToast('✅ 挂号成功！'); clearRegisterForm(); showPanel('patients'); }
-        function clearRegisterForm() { document.getElementById('regName').value = ''; document.getElementById('regAge').value = ''; document.getElementById('regPhone').value = ''; document.getElementById('regSymptom').value = ''; }
-        function renderPatients() { document.getElementById('patientList').innerHTML = patients.length === 0 ? '<tr><td colspan="8" class="empty-state"><div class="icon">📋</div><p>暂无患者</p></td></tr>' : patients.map(p => `<tr><td>${p.id}</td><td>${p.name}</td><td>${p.gender}</td><td>${p.age}</td><td>${p.phone}</td><td>${p.symptom}</td><td>${p.date}</td><td><button class="btn btn-primary btn-sm" onclick="createRecord('${p.id}')">📝 建病例</button></td></tr>`).join(''); }
-        let editingRecordId = null;
-        function openRecordModal(id = null) { editingRecordId = id; document.getElementById('recordPatient').innerHTML = patients.length === 0 ? '<option value="">暂无患者</option>' : patients.map(p => `<option value="${p.name}">${p.name} (${p.id})</option>`).join(''); document.getElementById('tcmPrescription').innerHTML = '<option value="">-- 选择经典方剂 --</option>' + prescriptions.map(p => `<option value="${p.id}">${p.name}</option>`).join(''); if (id) { const r = records.find(x => x.id === id); document.getElementById('recordPatient').value = r.patient; document.getElementById('tcmWang').value = r.wang || ''; document.getElementById('tcmWen').value = r.wen || ''; document.getElementById('tcmWen2').value = r.wen2 || ''; document.getElementById('tcmQie').value = r.qie || ''; document.getElementById('tcmDiagnosis').value = r.diagnosis || ''; document.getElementById('tcmTreatment').value = r.treatment || ''; document.getElementById('tcmHerbs').value = r.herbs || ''; document.getElementById('tcmAdvice').value = r.advice || ''; } else { document.querySelectorAll('#recordModal input, #recordModal textarea').forEach(el => { if (el.id !== 'recordPatient') el.value = ''; }); } document.getElementById('recordModal').classList.add('show'); }
-        function createRecord(patientId) { openRecordModal(); document.getElementById('recordPatient').value = patients.find(p => p.id === patientId)?.name || ''; }
-        function loadPrescription(id) { const p = prescriptions.find(x => x.id === id); if (p) document.getElementById('tcmHerbs').value = p.composition; }
-        function saveRecord() { const r = { id: editingRecordId || 'REC' + Date.now(), patient: document.getElementById('recordPatient').value, wang: document.getElementById('tcmWang').value, wen: document.getElementById('tcmWen').value, wen2: document.getElementById('tcmWen2').value, qie: document.getElementById('tcmQie').value, diagnosis: document.getElementById('tcmDiagnosis').value, treatment: document.getElementById('tcmTreatment').value, herbs: document.getElementById('tcmHerbs').value, advice: document.getElementById('tcmAdvice').value, date: new Date().toLocaleDateString('zh-CN'), doctor: currentUser.name }; if (!r.patient) { showToast('❌ 请选择患者'); return; } if (editingRecordId) { const idx = records.findIndex(x => x.id === editingRecordId); records[idx] = r; } else { records.push(r); } saveData(); closeModal('recordModal'); renderRecords(); updateStats(); showToast('✅ 病例保存成功！'); }
-        function renderRecords() { document.getElementById('recordList').innerHTML = records.length === 0 ? '<tr><td colspan="7" class="empty-state"><div class="icon">📝</div><p>暂无病例</p></td></tr>' : records.map(r => `<tr><td>${r.id}</td><td>${r.patient}</td><td>${r.diagnosis}</td><td>${r.herbs ? r.herbs.substring(0, 25) + '...' : '-'}</td><td>${r.doctor}</td><td>${r.date}</td><td><button class="btn btn-primary btn-sm" onclick="openRecordModal('${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteRecord('${r.id}')">🗑️</button></td></tr>`).join(''); }
-        function deleteRecord(id) { if (confirm('确定删除？')) { records = records.filter(r => r.id !== id); saveData(); renderRecords(); updateStats(); showToast('✅ 已删除'); } }
-        let editingPrescId = null;
-        function openPrescriptionModal(id = null) { editingPrescId = id; if (id) { const p = prescriptions.find(x => x.id === id); document.getElementById('prescName').value = p.name; document.getElementById('prescSource').value = p.source; document.getElementById('prescComposition').value = p.composition; document.getElementById('prescEffect').value = p.effect; document.getElementById('prescIndication').value = p.indication; } else { document.querySelectorAll('#prescriptionModal input, #prescriptionModal textarea').forEach(el => el.value = ''); } document.getElementById('prescriptionModal').classList.add('show'); }
-        function savePrescription() { const p = { id: editingPrescId || 'presc' + Date.now(), name: document.getElementById('prescName').value, source: document.getElementById('prescSource').value, composition: document.getElementById('prescComposition').value, effect: document.getElementById('prescEffect').value, indication: document.getElementById('prescIndication').value }; if (!p.name) { showToast('❌ 请输入名称'); return; } if (editingPrescId) { const idx = prescriptions.findIndex(x => x.id === editingPrescId); prescriptions[idx] = p; } else { prescriptions.push(p); } saveData(); closeModal('prescriptionModal'); renderPrescriptions(); updateStats(); showToast('✅ 方剂保存成功！'); }
-        function deletePrescription(id) { if (confirm('确定删除？')) { prescriptions = prescriptions.filter(p => p.id !== id); saveData(); renderPrescriptions(); updateStats(); showToast('✅ 已删除'); } }
-        function renderPrescriptions() { document.getElementById('prescriptionList').innerHTML = prescriptions.map(p => `<div class="herb-card" onclick="openPrescriptionModal('${p.id}')"><h4>💊 ${p.name}</h4><p><strong>出处：</strong>${p.source||'-'}</p><p><strong>功效：</strong>${p.effect||'-'}</p><p style="margin-top:8px;font-size:0.85em;color:var(--primary)">${p.composition?.substring(0,50)||''}...</p><div class="herb-card-actions" onclick="event.stopPropagation()"><button class="btn btn-primary btn-sm" onclick="openPrescriptionModal('${p.id}')">✏️ 编辑</button><button class="btn btn-danger btn-sm" onclick="deletePrescription('${p.id}')">🗑️ 删除</button></div></div>`).join(''); }
-        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-        function updateStats() { const today = new Date().toLocaleDateString('zh-CN'); document.getElementById('statPatients').textContent = patients.length; document.getElementById('statToday').textContent = patients.filter(p => p.date === today).length; document.getElementById('statRecords').textContent = records.length; document.getElementById('statPrescriptions').textContent = prescriptions.length; const todayPatients = patients.filter(p => p.date === today); document.getElementById('todayList').innerHTML = todayPatients.length > 0 ? `<div class="table-responsive"><table class="table"><thead><tr><th>单号</th><th>姓名</th><th>症状</th><th>状态</th></tr></thead><tbody>${todayPatients.map(p => `<tr><td>${p.id}</td><td>${p.name}</td><td>${p.symptom}</td><td><span class="tag tag-warning">${p.status}</span></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty-state"><div class="icon">📅</div><p>今日暂无挂号</p></div>'; }
-        
-        // ========== ☁️ 修复版云端同步（唯一 Gist） ==========
-        const GIST_DESC = 'TCM-Clinic-Data';
-        let gistId = null;
-        
-        function startAutoSync() { if (autoSyncTimer) clearInterval(autoSyncTimer); autoSyncTimer = setInterval(() => { syncFromGitHub(false); }, 60000); }
-        function scheduleAutoSync() { if (pendingSync) return; pendingSync = true; showSyncBar('syncing', '☁️ 正在同步到云端...'); setTimeout(() => { syncToGitHub(); pendingSync = false; }, 3000); }
-        function showSyncBar(type, msg) { const bar = document.getElementById('syncBar'); bar.textContent = msg; bar.className = 'sync-bar show ' + type; if (type === 'success' || type === 'error') { setTimeout(() => bar.classList.remove('show'), 3000); } }
-        function updateSyncStatus(status, text) { const el = document.getElementById('syncStatus'); const info = document.getElementById('syncInfo'); if (status === 'online') { el.className = 'tag tag-success'; el.textContent = '🟢 已同步'; } else if (status === 'syncing') { el.className = 'tag tag-warning'; el.textContent = '🟡 同步中...'; } else if (status === 'error') { el.className = 'tag tag-warning'; el.textContent = '🟠 同步失败'; } else { el.className = 'tag tag-warning'; el.textContent = '⚠️ 离线模式'; } info.textContent = text; }
-        
-        // ✅ 修复：先搜索用户所有 Gist，找到已存在的 TCM-Clinic-Data
-        async function findExistingGist() {
-            try {
-                const response = await fetch('https://api.github.com/gists', { headers: { 'Authorization': `token ${githubToken}` } });
-                if (!response.ok) return null;
-                const gists = await response.json();
-                const target = gists.find(g => g.description === GIST_DESC && g.files['tcm-data.json']);
-                return target ? target.id : null;
-            } catch (e) { return null; }
+
+        // ===== Login Function =====
+        function login() {
+            const token = document.getElementById('githubToken').value;
+            const role = document.getElementById('roleSelect').value;
+            
+            if (!token) {
+                showToast('请输入 GitHub Token', 'error');
+                return;
+            }
+
+            currentUser = {
+                name: role === 'admin' ? '管理员' : role === 'doctor' ? '中医师' : '药剂师',
+                role: role
+            };
+
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainApp').classList.add('active');
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+            
+            showToast('登录成功！欢迎使用 v0.7.0');
         }
-        
-        async function getOrCreateGist() {
-            // 1. 先从本地缓存读取
-            gistId = localStorage.getItem('tcm_gist_id');
-            if (gistId) {
-                try {
-                    const r = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}` } });
-                    if (r.ok) return gistId;
-                } catch(e) {}
-            }
-            // 2. 搜索用户所有 Gist，找到已存在的
-            gistId = await findExistingGist();
-            if (gistId) {
-                localStorage.setItem('tcm_gist_id', gistId);
-                return gistId;
-            }
-            // 3. 创建新 Gist（仅当不存在时）
-            const response = await fetch('https://api.github.com/gists', {
-                method: 'POST',
-                headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ description: GIST_DESC, public: false, files: { 'tcm-data.json': { content: JSON.stringify({ patients: [], records: [], prescriptions: [], updatedAt: new Date().toISOString() }, null, 2) } } })
+
+        // ===== Navigation =====
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                
+                this.classList.add('active');
+                const panelId = this.getAttribute('data-panel');
+                document.getElementById(panelId).classList.add('active');
             });
-            const data = await response.json();
-            gistId = data.id;
-            localStorage.setItem('tcm_gist_id', gistId);
-            return gistId;
+        });
+
+        // ===== Modal Functions =====
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
         }
-        
-        async function syncToGitHub() { if (!githubToken) return; const data = { patients, records, prescriptions, updatedAt: new Date().toISOString() }; try { const gid = await getOrCreateGist(); const response = await fetch(`https://api.github.com/gists/${gid}`, { method: 'PATCH', headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { 'tcm-data.json': { content: JSON.stringify(data, null, 2) } } }) }); if (response.ok) { showSyncBar('success', '✅ 已同步到云端'); updateSyncStatus('online', '最后同步：' + new Date().toLocaleString('zh-CN')); localStorage.setItem('tcm_last_sync', new Date().toISOString()); } else { throw new Error('上传失败'); } } catch (e) { showSyncBar('error', '❌ 同步失败'); updateSyncStatus('error', '同步失败：' + e.message); } }
-        
-        async function syncFromGitHub(silent = false) { if (!githubToken) return; if (!silent) showSyncBar('syncing', '☁️ 正在从云端下载...'); try { const gid = await getOrCreateGist(); const response = await fetch(`https://api.github.com/gists/${gid}`, { headers: { 'Authorization': `token ${githubToken}` } }); if (response.ok) { const data = await response.json(); const content = JSON.parse(data.files['tcm-data.json'].content); const localTime = localStorage.getItem('tcm_last_sync') || ''; if (data.updated_at > localTime) { patients = content.patients || []; records = content.records || []; prescriptions = content.prescriptions || []; saveData(); initApp(); if (!silent) { showSyncBar('success', '✅ 已从云端下载'); showToast('☁️ 数据已同步'); } updateSyncStatus('online', '最后同步：' + new Date(data.updated_at).toLocaleString('zh-CN')); } else { if (!silent) updateSyncStatus('online', '最后同步：' + new Date(localTime).toLocaleString('zh-CN')); } } else { throw new Error('下载失败'); } } catch (e) { if (!silent) { showSyncBar('error', '❌ 下载失败'); updateSyncStatus('error', '下载失败'); } } }
-        
-        document.addEventListener('visibilitychange', () => { if (!document.hidden && githubToken) syncFromGitHub(false); });
-        const savedUser = localStorage.getItem('tcm_user'); if (savedUser) { currentUser = JSON.parse(savedUser); showMainApp(); }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // ===== Patient Functions =====
+        function savePatient() {
+            const name = document.getElementById('patientName').value;
+            const gender = document.getElementById('patientGender').value;
+            const age = document.getElementById('patientAge').value;
+            const phone = document.getElementById('patientPhone').value;
+
+            if (!name || !phone) {
+                showToast('请填写必填信息', 'error');
+                return;
+            }
+
+            const newPatient = {
+                id: 'P' + String(patients.length + 1).padStart(3, '0'),
+                name: name,
+                gender: gender,
+                age: age,
+                phone: phone,
+                status: '正常'
+            };
+
+            patients.push(newPatient);
+            renderPatients();
+            hideModal('patientModal');
+            showToast('患者添加成功！');
+            
+            // Clear form
+            document.getElementById('patientName').value = '';
+            document.getElementById('patientAge').value = '';
+            document.getElementById('patientPhone').value = '';
+        }
+
+        function renderPatients() {
+            const tbody = document.getElementById('patientsTable');
+            tbody.innerHTML = patients.map(p => `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.name}</td>
+                    <td>${p.gender}</td>
+                    <td>${p.age}</td>
+                    <td>${p.phone}</td>
+                    <td><span class="tag ${p.status === '正常' ? 'tag-success' : 'tag-warning'}">${p.status}</span></td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm">查看</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ===== Toast =====
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            
+            if (type === 'error') {
+                toast.style.background = 'var(--danger)';
+            } else {
+                toast.style.background = 'var(--primary)';
+            }
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ===== Initialize =====
+        renderPatients();
     </script>
 </body>
 </html>
