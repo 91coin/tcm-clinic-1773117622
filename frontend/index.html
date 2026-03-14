@@ -8,746 +8,138 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== CSS Variables - Design System ===== */
         :root {
-            /* Primary Colors - 中医风格 */
-            --primary: #1a5f2e;
-            --primary-light: #2d7a46;
-            --primary-dark: #0f3d1e;
+            --primary: #1a5f2e; --primary-light: #2d7a46; --primary-dark: #0f3d1e;
             --primary-alpha: rgba(26, 95, 46, 0.1);
-            
-            /* Accent - 金色点缀 */
-            --accent: #c9a227;
-            --accent-light: #e8c547;
-            --accent-dark: #a68520;
-            
-            /* Backgrounds */
-            --bg-main: #f5f7f2;
-            --bg-card: #ffffff;
-            --bg-sidebar: #1a2e1a;
-            
-            /* Text */
-            --text-primary: #1a1a1a;
-            --text-secondary: #5a6a5a;
-            --text-muted: #8a9a8a;
-            --text-inverse: #ffffff;
-            
-            /* Semantic Colors */
-            --success: #22a855;
-            --warning: #e8a832;
-            --danger: #dc3545;
-            --info: #3b82c4;
-            
-            /* Shadows */
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-            --shadow-xl: 0 16px 48px rgba(0,0,0,0.15);
-            
-            /* Border Radius */
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 16px;
-            --radius-xl: 24px;
-            
-            /* Transitions */
-            --transition-fast: 0.15s ease;
-            --transition-normal: 0.25s ease;
-            --transition-slow: 0.4s ease;
-            
-            /* Spacing */
-            --space-xs: 4px;
-            --space-sm: 8px;
-            --space-md: 16px;
-            --space-lg: 24px;
-            --space-xl: 32px;
-            --space-2xl: 48px;
+            --accent: #c9a227; --accent-light: #e8c547; --accent-dark: #a68520;
+            --bg-main: #f5f7f2; --bg-card: #ffffff;
+            --text-primary: #1a1a1a; --text-secondary: #5a6a5a; --text-muted: #8a9a8a;
+            --success: #22a855; --warning: #e8a832; --danger: #dc3545; --info: #3b82c4;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08); --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12); --shadow-xl: 0 16px 48px rgba(0,0,0,0.15);
+            --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px; --radius-xl: 24px;
+            --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px;
         }
-
-        /* ===== Reset & Base ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         html { font-size: 16px; }
+        body { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: var(--bg-main); color: var(--text-primary); line-height: 1.6; -webkit-font-smoothing: antialiased; }
         
-        body {
-            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-main);
-            color: var(--text-primary);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* ===== Login Page ===== */
-        .login-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: 
-                linear-gradient(135deg, var(--primary-dark) 0%, 
-                var(--primary) 50%,
-                var(--primary-light) 100%;
-            padding: var(--space-lg);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-page::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(201, 162, 39, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-            animation: bgFloat 20s ease-in-out infinite;
-        }
-
-        @keyframes bgFloat {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            50% { transform: translate(-2%, -2%) rotate(1deg); }
-        }
-
-        .login-card {
-            background: var(--bg-card);
-            border-radius: var(--radius-xl);
-            padding: var(--space-2xl);
-            width: 100%;
-            max-width: 420px;
-            box-shadow: var(--shadow-xl);
-            position: relative;
-            z-index: 1;
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .login-logo {
-            text-align: center;
-            margin-bottom: var(--space-xl);
-        }
-
-        .login-logo h1 {
-            color: var(--primary);
-            font-size: 1.8em;
-            font-weight: 700;
-            margin-bottom: var(--space-sm);
-            font-family: 'Noto Serif SC', serif;
-        }
-
-        .login-logo p {
-            color: var(--text-secondary);
-            font-size: 0.95em;
-        }
-
-        /* ===== Form Elements ===== */
-        .form-group {
-            margin-bottom: var(--space-lg);
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: var(--space-sm);
-            font-weight: 500;
-            color: var(--text-primary);
-            font-size: 0.9em;
-        }
-
-        .form-group input, 
-        .form-group select, 
-        .form-group textarea {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e5ebe5;
-            border-radius: var(--radius-md);
-            font-size: 1em;
-            font-family: inherit;
-            transition: all var(--transition-fast);
-            background: var(--bg-main);
-        }
-
-        .form-group input:focus, 
-        .form-group select:focus, 
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: var(--bg-card);
-            box-shadow: 0 0 0 4px var(--primary-alpha);
-        }
-
-        /* ===== Buttons ===== */
-        .btn {
-            padding: 14px 28px;
-            border: none;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            transition: all var(--transition-normal);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-sm);
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-            box-shadow: 0 4px 15px rgba(26, 95, 46, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(26, 95, 46, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--bg-main);
-            color: var(--text-primary);
-            border: 2px solid #e5ebe5;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 0.85em;
-        }
-
-        .btn-block {
-            width: 100%;
-        }
-
-        /* ===== Main App Layout ===== */
-        .main-app {
-            display: none;
-            min-height: 100vh;
-        }
-
-        .main-app.active {
-            display: block;
-        }
-
-        /* ===== Header ===== */
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: var(--space-md) var(--space-lg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow-md);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header h1 {
-            font-size: 1.3em;
-            font-weight: 600;
-            font-family: 'Noto Serif SC', serif;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: var(--space-md);
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: var(--primary-dark);
-            font-size: 1.1em;
-        }
-
-        /* ===== Navigation ===== */
-        .nav {
-            display: flex;
-            background: var(--bg-card);
-            padding: 0 var(--space-lg);
-            box-shadow: var(--shadow-sm);
-            overflow-x: auto;
-            position: sticky;
-            top: 60px;
-            z-index: 99;
-        }
-
-        .nav::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .nav::-webkit-scrollbar-track {
-            background: var(--bg-main);
-        }
-
-        .nav::-webkit-scrollbar-thumb {
-            background: var(--primary-light);
-            border-radius: 2px;
-        }
-
-        .nav-item {
-            padding: var(--space-md) var(--space-lg);
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            white-space: nowrap;
-            color: var(--text-secondary);
-            font-weight: 500;
-            transition: all var(--transition-fast);
-        }
-
-        .nav-item:hover {
-            color: var(--primary);
-            background: var(--primary-alpha);
-        }
-
-        .nav-item.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
-        /* ===== Container ===== */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: var(--space-lg);
-        }
-
-        /* ===== Panels ===== */
-        .panel {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .panel.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* ===== Cards ===== */
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            padding: var(--space-lg);
-            margin-bottom: var(--space-lg);
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-normal);
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-md);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-lg);
-            padding-bottom: var(--space-md);
-            border-bottom: 2px solid #e5ebe5;
-            flex-wrap: wrap;
-            gap: var(--space-md);
-        }
-
-        .card-header h3 {
-            color: var(--primary);
-            font-size: 1.2em;
-            font-family: 'Noto Serif SC', serif;
-        }
-
-        /* ===== Tables ===== */
-        .table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        .table th {
-            background: linear-gradient(135deg, #f8faf8, #f0f4f0);
-            color: var(--primary);
-            padding: var(--space-md);
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid var(--primary-light);
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .table th:first-child {
-            border-radius: var(--radius-md) 0 0 0;
-        }
-
-        .table th:last-child {
-            border-radius: 0 var(--radius-md) 0 0;
-        }
-
-        .table td {
-            padding: var(--space-md);
-            border-bottom: 1px solid #e5ebe5;
-            font-size: 0.95em;
-        }
-
-        .table tbody tr {
-            transition: all var(--transition-fast);
-        }
-
-        .table tbody tr:nth-child(odd) {
-            background: #fafefa;
-        }
-
-        .table tbody tr:hover {
-            background: #e8f5e9;
-            transform: scale(1.005);
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* ===== Tags ===== */
-        .tag {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 500;
-        }
-
-        .tag-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .tag-warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .tag-danger {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .tag-info {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        /* ===== Grid ===== */
-        .grid-2, .grid-3, .grid-4 {
-            display: grid;
-            gap: var(--space-md);
-        }
-
+        .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-light)); padding: var(--space-lg); position: relative; overflow: hidden; }
+        .login-page::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 20% 80%, rgba(201,162,39,0.1), transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1), transparent 50%); animation: bgFloat 20s ease-in-out infinite; }
+        @keyframes bgFloat { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-2%, -2%); } }
+        
+        .login-card { background: var(--bg-card); border-radius: var(--radius-xl); padding: var(--space-2xl); width: 100%; max-width: 420px; box-shadow: var(--shadow-xl); position: relative; z-index: 1; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .login-logo { text-align: center; margin-bottom: var(--space-xl); }
+        .login-logo h1 { color: var(--primary); font-size: 1.8em; font-weight: 700; margin-bottom: var(--space-sm); font-family: 'Noto Serif SC', serif; }
+        .login-logo p { color: var(--text-secondary); font-size: 0.95em; }
+        
+        .form-group { margin-bottom: var(--space-lg); }
+        .form-group label { display: block; margin-bottom: var(--space-sm); font-weight: 500; color: var(--text-primary); font-size: 0.9em; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 18px; border: 2px solid #e5ebe5; border-radius: var(--radius-md); font-size: 1em; transition: all 0.15s ease; background: var(--bg-main); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: var(--bg-card); box-shadow: 0 0 0 4px var(--primary-alpha); }
+        
+        .btn { padding: 14px 28px; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1em; font-weight: 600; transition: all 0.25s ease; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-sm); }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; box-shadow: 0 4px 15px rgba(26,95,46,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(26,95,46,0.4); }
+        .btn-secondary { background: var(--bg-main); color: var(--text-primary); border: 2px solid #e5ebe5; }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-sm { padding: 8px 16px; font-size: 0.85em; }
+        .btn-block { width: 100%; }
+        
+        .main-app { display: none; min-height: 100vh; }
+        .main-app.active { display: block; }
+        
+        .header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: var(--space-md) var(--space-lg); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-md); position: sticky; top: 0; z-index: 100; }
+        .header h1 { font-size: 1.3em; font-weight: 600; font-family: 'Noto Serif SC', serif; }
+        .user-info { display: flex; align-items: center; gap: var(--space-md); }
+        .user-avatar { width: 40px; height: 40px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary-dark); font-size: 1.1em; }
+        
+        .nav { display: flex; background: var(--bg-card); padding: 0 var(--space-lg); box-shadow: var(--shadow-sm); overflow-x: auto; position: sticky; top: 60px; z-index: 99; }
+        .nav::-webkit-scrollbar { height: 4px; }
+        .nav::-webkit-scrollbar-track { background: var(--bg-main); }
+        .nav::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 2px; }
+        .nav-item { padding: var(--space-md) var(--space-lg); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; color: var(--text-secondary); font-weight: 500; transition: all 0.15s ease; }
+        .nav-item:hover { color: var(--primary); background: var(--primary-alpha); }
+        .nav-item.active { color: var(--primary); border-bottom-color: var(--primary); }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: var(--space-lg); }
+        .panel { display: none; animation: fadeIn 0.3s ease; }
+        .panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .card { background: var(--bg-card); border-radius: var(--radius-lg); padding: var(--space-lg); margin-bottom: var(--space-lg); box-shadow: var(--shadow-sm); transition: all 0.25s ease; }
+        .card:hover { box-shadow: var(--shadow-md); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); padding-bottom: var(--space-md); border-bottom: 2px solid #e5ebe5; flex-wrap: wrap; gap: var(--space-md); }
+        .card-header h3 { color: var(--primary); font-size: 1.2em; font-family: 'Noto Serif SC', serif; }
+        
+        .table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .table th { background: linear-gradient(135deg, #f8faf8, #f0f4f0); color: var(--primary); padding: var(--space-md); text-align: left; font-weight: 600; border-bottom: 2px solid var(--primary-light); font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; }
+        .table th:first-child { border-radius: var(--radius-md) 0 0 0; }
+        .table th:last-child { border-radius: 0 var(--radius-md) 0 0; }
+        .table td { padding: var(--space-md); border-bottom: 1px solid #e5ebe5; font-size: 0.95em; }
+        .table tbody tr { transition: all 0.15s ease; }
+        .table tbody tr:nth-child(odd) { background: #fafefa; }
+        .table tbody tr:hover { background: #e8f5e9; transform: scale(1.005); }
+        .table-responsive { overflow-x: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+        
+        .tag { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 500; }
+        .tag-success { background: #d4edda; color: #155724; }
+        .tag-warning { background: #fff3cd; color: #856404; }
+        .tag-danger { background: #f8d7da; color: #721c24; }
+        .tag-info { background: #d1ecf1; color: #0c5460; }
+        
+        .grid-2, .grid-3, .grid-4 { display: grid; gap: var(--space-md); }
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
         .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-4 { grid-template-columns: repeat(4, 1fr); }
-
-        @media (max-width: 1024px) {
-            .grid-4 { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        @media (max-width: 768px) {
-            .grid-2, .grid-3, .grid-4 { 
-                grid-template-columns: 1fr; 
-            }
-        }
-
-        /* ===== Stat Cards ===== */
-        .stat-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-            padding: var(--space-lg);
-            border-radius: var(--radius-lg);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        }
-
-        .stat-card .num {
-            font-size: 2.5em;
-            font-weight: 700;
-            line-height: 1;
-            margin-bottom: var(--space-xs);
-        }
-
-        .stat-card .label {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-
-        /* ===== Sync Bar ===== */
-        .sync-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: var(--primary-dark);
-            color: white;
-            padding: 10px var(--space-lg);
-            text-align: center;
-            font-size: 0.9em;
-            z-index: 1000;
-            display: none;
-            font-weight: 500;
-        }
-
+        @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+        
+        .stat-card { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: var(--space-lg); border-radius: var(--radius-lg); text-align: center; position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 70%); }
+        .stat-card .num { font-size: 2.5em; font-weight: 700; line-height: 1; margin-bottom: var(--space-xs); }
+        .stat-card .label { font-size: 0.9em; opacity: 0.9; }
+        
+        .sync-bar { position: fixed; top: 0; left: 0; right: 0; background: var(--primary-dark); color: white; padding: 10px var(--space-lg); text-align: center; font-size: 0.9em; z-index: 1000; display: none; font-weight: 500; }
         .sync-bar.show { display: block; animation: slideDown 0.3s ease; }
         .sync-bar.syncing { background: var(--warning); }
         .sync-bar.success { background: var(--success); }
         .sync-bar.error { background: var(--danger); }
-
-        @keyframes slideDown {
-            from { transform: translateY(-100%); }
-            to { transform: translateY(0); }
-        }
-
-        /* ===== Toast ===== */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--primary);
-            color: white;
-            padding: 16px 28px;
-            border-radius: var(--radius-md);
-            z-index: 2000;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-lg);
-            font-weight: 500;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        @media (max-width: 576px) {
-            .toast { 
-                left: 20px; 
-                right: 20px; 
-                bottom: 20px;
-            }
-        }
-
-        /* ===== Modal ===== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-lg);
-            backdrop-filter: blur(4px);
-        }
-
-        .modal.show {
-            display: flex;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            border-radius: var(--radius-xl);
-            padding: var(--space-xl);
-            width: 100%;
-            max-width: 700px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-xl);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-lg);
-            padding-bottom: var(--space-md);
-            border-bottom: 2px solid #e5ebe5;
-        }
-
-        .modal-header h3 {
-            color: var(--primary);
-            font-family: 'Noto Serif SC', serif;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: color var(--transition-fast);
-        }
-
-        .close-btn:hover {
-            color: var(--danger);
-        }
-
-        /* ===== Herb Cards ===== */
-        .herb-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: var(--space-md);
-        }
-
-        .herb-card {
-            background: linear-gradient(135deg, #f8faf8 0%, #f0f7f0 100%);
-            border: 1px solid #e5ebe5;
-            border-radius: var(--radius-md);
-            padding: var(--space-md);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .herb-card:hover {
-            border-color: var(--primary-light);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(26,95,46,0.15);
-        }
-
-        .herb-card h4 {
-            color: var(--primary);
-            margin-bottom: var(--space-sm);
-            font-weight: 600;
-        }
-
-        .herb-card-actions {
-            display: flex;
-            gap: var(--space-sm);
-            margin-top: var(--space-md);
-        }
-
-        /* ===== TCM Sections ===== */
-        .tcm-section {
-            margin: var(--space-lg) 0;
-        }
-
-        .tcm-section h4 {
-            color: var(--primary);
-            margin-bottom: var(--space-md);
-            font-weight: 600;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        /* ===== Empty State ===== */
-        .empty-state {
-            text-align: center;
-            padding: var(--space-2xl) var(--space-lg);
-            color: var(--text-secondary);
-        }
-
-        .empty-state .icon {
-            font-size: 3em;
-            margin-bottom: var(--space-md);
-        }
-
-        /* ===== Button Groups ===== */
-        .btn-group {
-            display: flex;
-            gap: var(--space-sm);
-            flex-wrap: wrap;
-        }
-
-        /* ===== Select Wrapper ===== */
-        .select-wrapper {
-            position: relative;
-        }
-
-        .select-wrapper select {
-            appearance: none;
-            padding-right: 45px;
-        }
-
-        .select-wrapper::after {
-            content: '▼';
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary);
-            pointer-events: none;
-            font-size: 0.7em;
-        }
-
-        /* ===== Version Badge ===== */
-        .version-badge {
-            background: var(--accent);
-            color: var(--primary-dark);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.7em;
-            font-weight: 700;
-            margin-left: var(--space-sm);
-        }
-
-        /* ===== Animations ===== */
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .slide-in {
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+        
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--primary); color: white; padding: 16px 28px; border-radius: var(--radius-md); z-index: 2000; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; box-shadow: var(--shadow-lg); font-weight: 500; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        @media (max-width: 576px) { .toast { left: 20px; right: 20px; bottom: 20px; } }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: var(--space-lg); backdrop-filter: blur(4px); }
+        .modal.show { display: flex; animation: fadeIn 0.2s ease; }
+        .modal-content { background: var(--bg-card); border-radius: var(--radius-xl); padding: var(--space-xl); width: 100%; max-width: 700px; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-xl); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); padding-bottom: var(--space-md); border-bottom: 2px solid #e5ebe5; }
+        .modal-header h3 { color: var(--primary); font-family: 'Noto Serif SC', serif; }
+        .close-btn { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--text-secondary); transition: color 0.15s ease; }
+        .close-btn:hover { color: var(--danger); }
+        
+        .herb-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); }
+        .herb-card { background: linear-gradient(135deg, #f8faf8 0%, #f0f7f0 100%); border: 1px solid #e5ebe5; border-radius: var(--radius-md); padding: var(--space-md); cursor: pointer; transition: all 0.3s ease; }
+        .herb-card:hover { border-color: var(--primary-light); transform: translateY(-4px); box-shadow: 0 8px 20px rgba(26,95,46,0.15); }
+        .herb-card h4 { color: var(--primary); margin-bottom: var(--space-sm); font-weight: 600; }
+        .herb-card-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-md); }
+        
+        .tcm-section { margin: var(--space-lg) 0; }
+        .tcm-section h4 { color: var(--primary); margin-bottom: var(--space-md); font-weight: 600; }
+        textarea { resize: vertical; min-height: 100px; }
+        
+        .empty-state { text-align: center; padding: var(--space-2xl) var(--space-lg); color: var(--text-secondary); }
+        .empty-state .icon { font-size: 3em; margin-bottom: var(--space-md); }
+        
+        .btn-group { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+        .select-wrapper { position: relative; }
+        .select-wrapper select { appearance: none; padding-right: 45px; }
+        .select-wrapper::after { content: '▼'; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none; font-size: 0.7em; }
+        
+        .version-badge { background: var(--accent); color: var(--primary-dark); padding: 2px 8px; border-radius: 10px; font-size: 0.7em; font-weight: 700; margin-left: var(--space-sm); }
     </style>
 </head>
 <body>
@@ -771,9 +163,7 @@
                     <option value="pharmacist">药剂师</option>
                 </select>
             </div>
-            <button class="btn btn-primary btn-block" onclick="login()">
-                🚀 登录系统
-            </button>
+            <button class="btn btn-primary btn-block" onclick="login()">🚀 登录系统</button>
         </div>
     </div>
 
@@ -799,7 +189,6 @@
         </div>
 
         <div class="container">
-            <!-- Home Panel -->
             <div id="home" class="panel active">
                 <div class="grid-4" style="margin-bottom: var(--space-lg);">
                     <div class="stat-card">
@@ -828,32 +217,12 @@
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
-                                    <tr>
-                                        <th>时间</th>
-                                        <th>患者</th>
-                                        <th>项目</th>
-                                        <th>状态</th>
-                                    </tr>
+                                    <tr><th>时间</th><th>患者</th><th>项目</th><th>状态</th></tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>09:00</td>
-                                        <td>张三</td>
-                                        <td>中医诊疗</td>
-                                        <td><span class="tag tag-warning">待接诊</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>09:30</td>
-                                        <td>李四</td>
-                                        <td>复诊</td>
-                                        <td><span class="tag tag-warning">待接诊</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>10:00</td>
-                                        <td>王五</td>
-                                        <td>针灸治疗</td>
-                                        <td><span class="tag tag-success">已确认</span></td>
-                                    </tr>
+                                    <tr><td>09:00</td><td>张三</td><td>中医诊疗</td><td><span class="tag tag-warning">待接诊</span></td></tr>
+                                    <tr><td>09:30</td><td>李四</td><td>复诊</td><td><span class="tag tag-warning">待接诊</span></td></tr>
+                                    <tr><td>10:00</td><td>王五</td><td>针灸治疗</td><td><span class="tag tag-success">已确认</span></td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -864,28 +233,15 @@
                             <h3>📊 今日数据</h3>
                         </div>
                         <div style="padding: var(--space-md);">
-                            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5ebe5;">
-                                <span>门诊量</span>
-                                <strong>45 人</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5ebe5;">
-                                <span>处方数</span>
-                                <strong>38 份</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5ebe5;">
-                                <span>营收</span>
-                                <strong>¥12,580</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 10px 0;">
-                                <span>配药</span>
-                                <strong>32 副</strong>
-                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5ebe5;"><span>门诊量</span><strong>45 人</strong></div>
+                            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5ebe5;"><span>处方数</span><strong>38 份</strong></div>
+                            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5ebe5;"><span>营收</span><strong>¥12,580</strong></div>
+                            <div style="display: flex; justify-content: space-between; padding: 10px 0;"><span>配药</span><strong>32 副</strong></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Other Panels Placeholder -->
             <div id="patients" class="panel">
                 <div class="card">
                     <div class="card-header">
@@ -897,158 +253,41 @@
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>姓名</th>
-                                    <th>性别</th>
-                                    <th>年龄</th>
-                                    <th>电话</th>
-                                    <th>状态</th>
-                                    <th>操作</th>
-                                </tr>
+                                <tr><th>ID</th><th>姓名</th><th>性别</th><th>年龄</th><th>电话</th><th>状态</th><th>操作</th></tr>
                             </thead>
                             <tbody id="patientsTable">
-                                <tr>
-                                    <td>P001</td>
-                                    <td>张三</td>
-                                    <td>男</td>
-                                    <td>45</td>
-                                    <td>13800138000</td>
-                                    <td><span class="tag tag-success">正常</span></td>
-                                    <td>
-                                        <button class="btn btn-secondary btn-sm">查看</button>
-                                    </td>
-                                </tr>
+                                <tr><td>P001</td><td>张三</td><td>男</td><td>45</td><td>13800138000</td><td><span class="tag tag-success">正常</span></td><td><button class="btn btn-secondary btn-sm">查看</button></td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <div id="appointments" class="panel">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>📝 预约接诊</h3>
-                    </div>
-                    <div class="empty-state">
-                        <div class="icon">📅</div>
-                        <p>预约管理系统 - 开发中...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="diagnosis" class="panel">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>🩺 中医诊疗</h3>
-                    </div>
-                    <div class="empty-state">
-                        <div class="icon">🩺</div>
-                        <p>中医诊疗系统 - 开发中...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="prescriptions" class="panel">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>💊 处方管理</h3>
-                    </div>
-                    <div class="empty-state">
-                        <div class="icon">💊</div>
-                        <p>处方管理系统 - 开发中...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="billing" class="panel">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>💰 收费结算</h3>
-                    </div>
-                    <div class="empty-state">
-                        <div class="icon">💰</div>
-                        <p>收费系统 - 开发中...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="inventory" class="panel">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>📦 药房库存</h3>
-                        <div class="btn-group">
-                            <button class="btn btn-primary btn-sm">➕ 入库</button>
-                            <button class="btn btn-secondary btn-sm">📤 出库</button>
-                        </div>
-                    </div>
-                    <div class="empty-state">
-                        <div class="icon">🌿</div>
-                        <p>中药库存管理 - 开发中...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="reports" class="panel">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>📈 统计报表</h3>
-                    </div>
-                    <div class="empty-state">
-                        <div class="icon">📈</div>
-                        <p>数据统计 - 开发中...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="settings" class="panel">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>⚙️ 系统管理</h3>
-                    </div>
-                    <div class="empty-state">
-                        <div class="icon">⚙️</div>
-                        <p>系统设置 - 开发中...</p>
-                    </div>
-                </div>
-            </div>
+            <div id="appointments" class="panel"><div class="card"><div class="card-header"><h3>📝 预约接诊</h3></div><div class="empty-state"><div class="icon">📅</div><p>预约管理系统 - 开发中...</p></div></div></div>
+            <div id="diagnosis" class="panel"><div class="card"><div class="card-header"><h3>🩺 中医诊疗</h3></div><div class="empty-state"><div class="icon">🩺</div><p>中医诊疗系统 - 开发中...</p></div></div></div>
+            <div id="prescriptions" class="panel"><div class="card"><div class="card-header"><h3>💊 处方管理</h3></div><div class="empty-state"><div class="icon">💊</div><p>处方管理系统 - 开发中...</p></div></div></div>
+            <div id="billing" class="panel"><div class="card"><div class="card-header"><h3>💰 收费结算</h3></div><div class="empty-state"><div class="icon">💰</div><p>收费系统 - 开发中...</p></div></div></div>
+            <div id="inventory" class="panel"><div class="card"><div class="card-header"><h3>📦 药房库存</h3><div class="btn-group"><button class="btn btn-primary btn-sm">➕ 入库</button><button class="btn btn-secondary btn-sm">📤 出库</button></div></div><div class="empty-state"><div class="icon">🌿</div><p>中药库存管理 - 开发中...</p></div></div></div>
+            <div id="reports" class="panel"><div class="card"><div class="card-header"><h3>📈 统计报表</h3></div><div class="empty-state"><div class="icon">📈</div><p>数据统计 - 开发中...</p></div></div></div>
+            <div id="settings" class="panel"><div class="card"><div class="card-header"><h3>⚙️ 系统管理</h3></div><div class="empty-state"><div class="icon">⚙️</div><p>系统设置 - 开发中...</p></div></div></div>
         </div>
     </div>
 
     <div id="toast" class="toast">操作成功</div>
 
-    <!-- Patient Modal -->
     <div id="patientModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>➕ 添加患者</h3>
                 <button class="close-btn" onclick="hideModal('patientModal')">&times;</button>
             </div>
-            <div class="form-group">
-                <label>姓名</label>
-                <input type="text" id="patientName" placeholder="请输入患者姓名">
-            </div>
+            <div class="form-group"><label>姓名</label><input type="text" id="patientName" placeholder="请输入患者姓名"></div>
             <div class="grid-2">
-                <div class="form-group">
-                    <label>性别</label>
-                    <select id="patientGender">
-                        <option value="男">男</option>
-                        <option value="女">女</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>年龄</label>
-                    <input type="number" id="patientAge" placeholder="年龄">
-                </div>
+                <div class="form-group"><label>性别</label><select id="patientGender"><option value="男">男</option><option value="女">女</option></select></div>
+                <div class="form-group"><label>年龄</label><input type="number" id="patientAge" placeholder="年龄"></div>
             </div>
-            <div class="form-group">
-                <label>电话</label>
-                <input type="tel" id="patientPhone" placeholder="手机号码">
-            </div>
-            <div class="form-group">
-                <label>备注</label>
-                <textarea id="patientNote" placeholder="其他信息..."></textarea>
-            </div>
+            <div class="form-group"><label>电话</label><input type="tel" id="patientPhone" placeholder="手机号码"></div>
+            <div class="form-group"><label>备注</label><textarea id="patientNote" placeholder="其他信息..."></textarea></div>
             <div class="btn-group">
                 <button class="btn btn-primary" onclick="savePatient()">保存</button>
                 <button class="btn btn-secondary" onclick="hideModal('patientModal')">取消</button>
@@ -1057,7 +296,6 @@
     </div>
 
     <script>
-        // ===== System Data =====
         let currentUser = null;
         let patients = [
             { id: 'P001', name: '张三', gender: '男', age: 45, phone: '13800138000', status: '正常' },
@@ -1065,117 +303,55 @@
             { id: 'P003', name: '王五', gender: '男', age: 52, phone: '13700137000', status: 'VIP' },
         ];
 
-        // ===== Login Function =====
         function login() {
             const token = document.getElementById('githubToken').value;
             const role = document.getElementById('roleSelect').value;
-            
-            if (!token) {
-                showToast('请输入 GitHub Token', 'error');
-                return;
-            }
-
-            currentUser = {
-                name: role === 'admin' ? '管理员' : role === 'doctor' ? '中医师' : '药剂师',
-                role: role
-            };
-
+            if (!token) { showToast('请输入 GitHub Token', 'error'); return; }
+            currentUser = { name: role === 'admin' ? '管理员' : role === 'doctor' ? '中医师' : '药剂师', role: role };
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').classList.add('active');
             document.getElementById('userName').textContent = currentUser.name;
             document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
-            
             showToast('登录成功！欢迎使用 v0.7.0');
         }
 
-        // ===== Navigation =====
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', function() {
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
                 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-                
                 this.classList.add('active');
-                const panelId = this.getAttribute('data-panel');
-                document.getElementById(panelId).classList.add('active');
+                document.getElementById(this.getAttribute('data-panel')).classList.add('active');
             });
         });
 
-        // ===== Modal Functions =====
-        function showModal(modalId) {
-            document.getElementById(modalId).classList.add('show');
-        }
+        function showModal(id) { document.getElementById(id).classList.add('show'); }
+        function hideModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        function hideModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
-        }
-
-        // ===== Patient Functions =====
         function savePatient() {
             const name = document.getElementById('patientName').value;
             const gender = document.getElementById('patientGender').value;
             const age = document.getElementById('patientAge').value;
             const phone = document.getElementById('patientPhone').value;
-
-            if (!name || !phone) {
-                showToast('请填写必填信息', 'error');
-                return;
-            }
-
-            const newPatient = {
-                id: 'P' + String(patients.length + 1).padStart(3, '0'),
-                name: name,
-                gender: gender,
-                age: age,
-                phone: phone,
-                status: '正常'
-            };
-
-            patients.push(newPatient);
+            if (!name || !phone) { showToast('请填写必填信息', 'error'); return; }
+            patients.push({ id: 'P' + String(patients.length + 1).padStart(3, '0'), name, gender, age, phone, status: '正常' });
             renderPatients();
             hideModal('patientModal');
             showToast('患者添加成功！');
-            
-            // Clear form
-            document.getElementById('patientName').value = '';
-            document.getElementById('patientAge').value = '';
-            document.getElementById('patientPhone').value = '';
+            document.getElementById('patientName').value = ''; document.getElementById('patientAge').value = ''; document.getElementById('patientPhone').value = '';
         }
 
         function renderPatients() {
-            const tbody = document.getElementById('patientsTable');
-            tbody.innerHTML = patients.map(p => `
-                <tr>
-                    <td>${p.id}</td>
-                    <td>${p.name}</td>
-                    <td>${p.gender}</td>
-                    <td>${p.age}</td>
-                    <td>${p.phone}</td>
-                    <td><span class="tag ${p.status === '正常' ? 'tag-success' : 'tag-warning'}">${p.status}</span></td>
-                    <td>
-                        <button class="btn btn-secondary btn-sm">查看</button>
-                    </td>
-                </tr>
-            `).join('');
+            document.getElementById('patientsTable').innerHTML = patients.map(p => `<tr><td>${p.id}</td><td>${p.name}</td><td>${p.gender}</td><td>${p.age}</td><td>${p.phone}</td><td><span class="tag ${p.status === '正常' ? 'tag-success' : 'tag-warning'}">${p.status}</span></td><td><button class="btn btn-secondary btn-sm">查看</button></td></tr>`).join('');
         }
 
-        // ===== Toast =====
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast show';
-            
-            if (type === 'error') {
-                toast.style.background = 'var(--danger)';
-            } else {
-                toast.style.background = 'var(--primary)';
-            }
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            toast.style.background = type === 'error' ? 'var(--danger)' : 'var(--primary)';
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // ===== Initialize =====
         renderPatients();
     </script>
 </body>
